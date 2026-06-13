@@ -1,0 +1,295 @@
+// This is your Prisma schema file.
+// Learn more: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ─────────────────────────────────────────────────────────────────
+// USER & AUTH
+// ─────────────────────────────────────────────────────────────────
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  plan          Plan      @default(FREE)
+  searchesToday Int       @default(0)
+  lastSearchDate DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts      Account[]
+  sessions      Session[]
+  sellerProfile SellerProfile?
+  savedLeads    SavedLead[]
+  savedSearches SavedSearch[]
+}
+
+enum Plan {
+  FREE      // 5 searches/day
+  STARTER   // 20 searches/day — ₹999/month
+  PRO       // Unlimited — ₹2,499/month
+  BUSINESS  // Unlimited + API — ₹6,999/month
+}
+
+// ─────────────────────────────────────────────────────────────────
+// SELLER PROFILE
+// ─────────────────────────────────────────────────────────────────
+
+model SellerProfile {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Identity
+  sellerType    String   // e.g. "developer", "insurance", "gymEquipment"
+  industryGroup String   // e.g. "digital", "financial", "fitness"
+  sellerLabel   String   // e.g. "Web Developer", "Insurance Agent"
+  whatISell     String   @db.Text
+
+  // Target business types (array of category strings)
+  targetTypes   String[]
+
+  // Hot lead signals (which signals matter to this seller)
+  signalNoWebsite     Boolean @default(false)
+  signalNewlyOpened   Boolean @default(false)
+  signalLowReviews    Boolean @default(false)
+  signalNoSocialMedia Boolean @default(false)
+  signalManyEmployees Boolean @default(false)
+  signalPhoneAvail    Boolean @default(true)
+  signalNotVerified   Boolean @default(false)
+  signalLowRating     Boolean @default(false)
+
+  pitchTemplate String?  @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─────────────────────────────────────────────────────────────────
+// SAVED LEADS
+// ─────────────────────────────────────────────────────────────────
+
+model SavedLead {
+  id      String @id @default(cuid())
+  userId  String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Business identity
+  placeId      String  // Google Place ID — dedup key
+  businessName String
+  category     String
+  industry     String
+
+  // Contact
+  phone    String?
+  email    String?
+  address  String
+  city     String
+  state    String?
+
+  // Location (for distance display)
+  lat Float?
+  lng Float?
+
+  // Digital presence
+  hasWebsite  Boolean @default(false)
+  websiteUrl  String?
+  rating      Float?
+  reviewCount Int?
+  isNewlyOpened Boolean @default(false)
+  googleVerified Boolean @default(false)
+
+  // Lead intelligence
+  leadScore       Int
+  priority        String  // "HOT" | "WARM" | "COLD"
+  pitchSuggestion String? @db.Text
+  scoreReasons    String[] // why this score was given
+  distanceKm      Float?   // distance from search center
+
+  // CRM status
+  status LeadStatus @default(NEW)
+  notes  String?    @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, placeId]) // user can't save same lead twice
+  @@index([userId, status])
+  @@index([userId, priority])
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  INTERESTED
+  CONVERTED
+  NOT_INTERESTED
+}
+
+// ─────────────────────────────────────────────────────────────────
+// SAVED SEARCHES & ALERTS
+// ─────────────────────────────────────────────────────────────────
+
+model SavedSearch {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name     String // user-given name: "New Gyms in Hyderabad"
+  category String
+  industry String
+
+  // Search mode and params
+  searchMode SearchMode @default(TEXT)
+  query      String?    // Mode 1: text query
+  lat        Float?     // Mode 2+3: GPS/map coordinates
+  lng        Float?
+  radiusKm   Int        @default(5)
+
+  // Alert settings
+  alertEnabled Boolean   @default(false)
+  autoRefresh  Boolean   @default(false)
+  lastRunAt    DateTime?
+  leadsFound   Int       @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+enum SearchMode {
+  TEXT       // typed query
+  NEAR_ME    // GPS coordinates from browser
+  MAP_CLICK  // coordinates from map click
+}
+
+// ─────────────────────────────────────────────────────────────────
+// DATA FLYWHEEL — CENTRAL BUSINESS INTELLIGENCE DB
+// (Admin only — never directly exposed to users)
+// ─────────────────────────────────────────────────────────────────
+
+model BusinessRecord {
+  id      String @id @default(cuid())
+  placeId String @unique // Google Place ID — primary dedup key
+
+  // Identity
+  name     String
+  category String
+  industry String
+
+  // Contact (business-level only, no personal data)
+  phone      String?
+  email      String? // domain email only (not gmail/personal)
+  websiteUrl String?
+  hasWebsite Boolean @default(false)
+
+  // Location
+  address String
+  city    String
+  state   String
+  pincode String?
+  lat     Float?
+  lng     Float?
+
+  // Quality signals
+  rating         Float?
+  reviewCount    Int?
+  isNewlyOpened  Boolean @default(false)
+  googleVerified Boolean @default(false)
+  socialMedia    String[] // Instagram/FB links found
+
+  // Data quality
+  confidenceScore Int     @default(0) // 0–100 completeness score
+  searchCount     Int     @default(1) // how many users have seen this
+  source          String  @default("google_places")
+
+  // DPDP compliance
+  optedOut Boolean @default(false) // business requested removal
+
+  firstSeenAt   DateTime @default(now())
+  lastUpdatedAt DateTime @updatedAt
+
+  // Indexes for fast admin queries
+  @@index([industry])
+  @@index([city])
+  @@index([state])
+  @@index([isNewlyOpened])
+  @@index([hasWebsite])
+  @@index([optedOut])
+  @@index([confidenceScore])
+  @@index([firstSeenAt])
+}
+
+model DataExport {
+  id String @id @default(cuid())
+
+  // Filters applied to this export
+  industry  String?
+  city      String?
+  state     String?
+  hasPhone  Boolean?
+  dateFrom  DateTime?
+  dateTo    DateTime?
+
+  recordCount Int
+  purpose     String  @default("internal") // "sold" | "internal" | "report"
+  buyerNote   String?
+
+  exportedAt DateTime @default(now())
+}
+
+model OptOutRequest {
+  id           String    @id @default(cuid())
+  placeId      String?
+  businessName String
+  city         String
+  status       String    @default("pending") // "pending" | "done"
+  requestedAt  DateTime  @default(now())
+  processedAt  DateTime?
+}
