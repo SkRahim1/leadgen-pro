@@ -13,6 +13,7 @@ export default function SettingsPage() {
   const router = useRouter()
   const [saved, setSaved] = useState(false)
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+  const [upgradePlan, setUpgradePlan] = useState<"STARTER" | "PRO" | "BUSINESS" | null>(null)
 
   const [whatISell, setWhatISell] = useState(sellerProfile?.whatISell || "")
   const [pitchTemplate, setPitchTemplate] = useState(sellerProfile?.pitchTemplate || "")
@@ -178,7 +179,11 @@ export default function SettingsPage() {
               </div>
             </div>
             {planInfo.next && (
-              <button className="btn btn-primary btn-sm" onClick={() => setShowUpgradeModal(true)}>
+              <button className="btn btn-primary btn-sm" onClick={() => {
+                const nextPlan = user?.plan === "FREE" ? "STARTER" : (user?.plan === "STARTER" ? "PRO" : "BUSINESS");
+                setUpgradePlan(nextPlan as any);
+                setShowUpgradeModal(true);
+              }}>
                 <Zap size={13} /> {planInfo.next}
               </button>
             )}
@@ -291,7 +296,7 @@ export default function SettingsPage() {
       </div>
 
       {/* Upgrade Modal */}
-      {showUpgradeModal && (
+      {showUpgradeModal && upgradePlan && (
         <div style={{
           position: "fixed",
           top: 0,
@@ -319,7 +324,7 @@ export default function SettingsPage() {
           }}>
             {/* Close button */}
             <button
-              onClick={() => setShowUpgradeModal(false)}
+              onClick={() => { setShowUpgradeModal(false); setUpgradePlan(null); }}
               style={{
                 position: "absolute",
                 top: 16,
@@ -334,47 +339,76 @@ export default function SettingsPage() {
               <X size={18} />
             </button>
 
-            {/* Icon */}
+            {/* Title */}
+            <h3 style={{ fontSize: 20, fontWeight: 800, letterSpacing: "-0.02em", marginBottom: 6 }}>
+              Upgrade to {upgradePlan === "STARTER" ? "Starter" : (upgradePlan === "PRO" ? "Pro" : "Business")}
+            </h3>
             <div style={{
-              width: 56,
-              height: 56,
-              borderRadius: "50%",
-              background: "linear-gradient(135deg, rgba(124,77,255,0.2), rgba(78,205,196,0.2))",
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              marginBottom: 20,
-              color: "var(--accent-light)",
+              fontSize: 24,
+              fontWeight: 900,
+              color: upgradePlan === "STARTER" ? "var(--cold)" : (upgradePlan === "PRO" ? "var(--accent-light)" : "var(--warm)"),
+              marginBottom: 16
             }}>
-              <Zap size={28} />
+              {upgradePlan === "STARTER" ? "₹799/month" : (upgradePlan === "PRO" ? "₹1,999/month" : "₹4,999/month")}
             </div>
 
-            {/* Title & Desc */}
-            <h3 style={{ fontSize: 20, fontWeight: 800, letterSpacing: "-0.02em", marginBottom: 12 }}>
-              Upgrade to Premium
-            </h3>
-            <p style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.6, marginBottom: 24 }}>
-              Premium billing integrations are coming soon! To upgrade your account limits, request customized solutions, or get early access, get in touch with our team.
+            {/* QR Code Container */}
+            <div style={{
+              background: "#ffffff",
+              padding: 16,
+              borderRadius: 12,
+              display: "inline-block",
+              marginBottom: 16,
+              boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
+            }}>
+              <img
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(
+                  `upi://pay?pa=skrahim786@ybl&pn=Rahim%20Muktar%20Shaikh&am=${upgradePlan === "STARTER" ? 799 : (upgradePlan === "PRO" ? 1999 : 4999)}&cu=INR&tn=LeadFlow%20${upgradePlan}%20Upgrade`
+                )}`}
+                alt="Payment QR Code"
+                style={{ width: 200, height: 200, display: "block" }}
+              />
+            </div>
+
+            {/* Instruction */}
+            <p style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.6, marginBottom: 12 }}>
+              Scan the QR code with GPay, PhonePe, Paytm, or BHIM to pay.
             </p>
+
+            {/* Legal payee name disclaimer */}
+            <div style={{
+              fontSize: 11,
+              color: "var(--text-secondary)",
+              background: "rgba(255,255,255,0.03)",
+              border: "1px solid var(--border)",
+              borderRadius: 8,
+              padding: "8px 12px",
+              marginBottom: 20,
+              textAlign: "left"
+            }}>
+              💡 <strong>Note:</strong> Payee name will appear as <strong>Rahim Muktar Shaikh</strong> on your payment app.
+            </div>
 
             {/* Actions */}
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               <a
-                href="https://renvixteach.in"
+                href={`https://wa.me/919284306159?text=${encodeURIComponent(
+                  `Hi Rahim, I have paid for the ${upgradePlan === "STARTER" ? "Starter (₹799)" : (upgradePlan === "PRO" ? "Pro (₹1,999)" : "Business (₹4,999)")} plan of Renvix LeadFlow. My registered email is: ${user?.email || ""}`
+                )}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn btn-primary"
                 style={{ justifyContent: "center", padding: "12px", borderRadius: 10, display: "flex", textDecoration: "none" }}
-                onClick={() => setShowUpgradeModal(false)}
+                onClick={() => { setShowUpgradeModal(false); setUpgradePlan(null); }}
               >
-                Get In Touch at renvixteach.in
+                ✅ Sent Payment Screenshot
               </a>
               <button
                 className="btn btn-secondary"
                 style={{ justifyContent: "center", padding: "12px", borderRadius: 10 }}
-                onClick={() => setShowUpgradeModal(false)}
+                onClick={() => { setShowUpgradeModal(false); setUpgradePlan(null); }}
               >
-                Close
+                Cancel
               </button>
             </div>
           </div>
