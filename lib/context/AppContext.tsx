@@ -131,6 +131,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           sellerProfile: null,
           savedLeads: [] as SavedLead[],
           onboardingComplete: false,
+          plan: "FREE" as "FREE" | "STARTER" | "PRO" | "BUSINESS",
         }
         try {
           const raw = localStorage.getItem(userKey)
@@ -140,13 +141,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
               sellerProfile: parsed.sellerProfile || null,
               savedLeads: parsed.savedLeads || [],
               onboardingComplete: parsed.onboardingComplete || false,
+              plan: parsed.plan || "FREE",
             }
           }
         } catch (_) {}
 
         // Set initial state from local storage first
         setState({
-          user: profile,
+          user: { ...profile, plan: userState.plan },
           isLoggedIn: true,
           sellerProfile: userState.sellerProfile,
           savedLeads: userState.savedLeads,
@@ -161,21 +163,21 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           if (docSnap.exists()) {
             const cloudData = docSnap.data()
             setState(prev => {
-              if (cloudData.onboardingComplete !== undefined) {
-                return {
-                  ...prev,
-                  sellerProfile: cloudData.sellerProfile || null,
-                  savedLeads: cloudData.savedLeads || [],
-                  onboardingComplete: cloudData.onboardingComplete || false,
-                }
+              const updatedUser = prev.user ? { ...prev.user, plan: cloudData.plan || "FREE" } : null
+              return {
+                ...prev,
+                user: updatedUser,
+                sellerProfile: cloudData.sellerProfile || null,
+                savedLeads: cloudData.savedLeads || [],
+                onboardingComplete: cloudData.onboardingComplete || false,
               }
-              return prev
             })
             // Update local storage cache
             localStorage.setItem(userKey, JSON.stringify({
               sellerProfile: cloudData.sellerProfile || null,
               savedLeads: cloudData.savedLeads || [],
               onboardingComplete: cloudData.onboardingComplete || false,
+              plan: cloudData.plan || "FREE",
             }))
           }
         } catch (err) {
@@ -203,6 +205,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       sellerProfile: state.sellerProfile,
       savedLeads: state.savedLeads,
       onboardingComplete: state.onboardingComplete,
+      plan: state.user.plan || "FREE",
     }
     
     // Save to local storage
@@ -224,6 +227,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     state.sellerProfile,
     state.savedLeads,
     state.onboardingComplete,
+    state.user?.plan,
     state.isLoggedIn,
     state.user,
     hydrated,
