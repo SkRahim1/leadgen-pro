@@ -178,14 +178,27 @@ export default function SettingsPage() {
                 <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{planInfo.savedLeads} saved leads limit</div>
               </div>
             </div>
-            {planInfo.next && (
-              <button className="btn btn-primary btn-sm" onClick={() => {
-                const nextPlan = user?.plan === "FREE" ? "STARTER" : (user?.plan === "STARTER" ? "PRO" : "BUSINESS");
-                setUpgradePlan(nextPlan as any);
-                setShowUpgradeModal(true);
-              }}>
-                <Zap size={13} /> {planInfo.next}
-              </button>
+            {user?.plan !== "BUSINESS" && (
+              <div style={{ marginTop: 16, paddingTop: 16, borderTop: "1px solid var(--border)" }}>
+                <div style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>Available Upgrades</div>
+                <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                  {user?.plan === "FREE" && (
+                    <button className="btn btn-secondary btn-sm" onClick={() => { setUpgradePlan("STARTER"); setShowUpgradeModal(true); }}>
+                      Upgrade to Starter (₹799)
+                    </button>
+                  )}
+                  {(user?.plan === "FREE" || user?.plan === "STARTER") && (
+                    <button className="btn btn-primary btn-sm" style={{ background: "linear-gradient(135deg, var(--accent), var(--cold))", border: "none" }} onClick={() => { setUpgradePlan("PRO"); setShowUpgradeModal(true); }}>
+                      Upgrade to Pro (₹1,999)
+                    </button>
+                  )}
+                  {(user?.plan === "FREE" || user?.plan === "STARTER" || user?.plan === "PRO") && (
+                    <button className="btn btn-secondary btn-sm" onClick={() => { setUpgradePlan("BUSINESS"); setShowUpgradeModal(true); }}>
+                      Upgrade to Business (₹4,999)
+                    </button>
+                  )}
+                </div>
+              </div>
             )}
           </div>
 
@@ -265,6 +278,107 @@ export default function SettingsPage() {
               </button>
             </div>
           )}
+
+          {/* FAQ Card */}
+          <div className="card">
+            <h2 style={{ fontSize: 14, fontWeight: 700, marginBottom: 16 }}>
+              🙋 Frequently Asked Questions
+            </h2>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {[
+                {
+                  q: "How do monthly lead limits work?",
+                  a: "Your plan's lead limit (e.g. 1,500 for Starter) represents the total number of Google business profiles you can search and fetch in a billing month. Limits reset on the 1st of every month."
+                },
+                {
+                  q: "Can I download my leads to Excel/CSV?",
+                  a: "Yes! Exporting to CSV is supported on the Pro and Business plans. Free and Starter users can manage leads within the built-in CRM pipeline and message them directly on WhatsApp."
+                },
+                {
+                  q: "How is the Lead Score calculated?",
+                  a: "Leads are scored from 0 to 100 based on 'Hot Signals' matched to your specific offer (e.g. if you sell websites, businesses with no website get +40 points automatically)."
+                },
+                {
+                  q: "How can I upgrade or cancel my plan?",
+                  a: "You can upgrade by scanning the UPI QR code in the subscription section above. To downgrade or cancel, simply message our support chat, and your profile will be updated instantly."
+                }
+              ].map((faq, i) => (
+                <details key={i} className="faq-details" style={{
+                  background: "rgba(255, 255, 255, 0.02)",
+                  border: "1px solid var(--border)",
+                  borderRadius: 10,
+                  padding: "12px 16px",
+                  cursor: "pointer",
+                  transition: "all 0.2s ease"
+                }}>
+                  <summary style={{
+                    fontWeight: 600,
+                    fontSize: 13,
+                    color: "var(--text-primary)",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    outline: "none",
+                    listStyle: "none"
+                  }}
+                  >
+                    {faq.q}
+                  </summary>
+                  <p style={{
+                    marginTop: 8,
+                    fontSize: 12,
+                    color: "var(--text-secondary)",
+                    lineHeight: 1.6,
+                    cursor: "default"
+                  }}>
+                    {faq.a}
+                  </p>
+                </details>
+              ))}
+            </div>
+          </div>
+
+          {/* Need Help / Support Card */}
+          <div className="card">
+            <h2 style={{ fontSize: 14, fontWeight: 700, marginBottom: 16 }}>
+              📞 Need Help & Support
+            </h2>
+            <p style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.6, marginBottom: 16 }}>
+              Have questions about your account, payment, custom scrapers, or need technical help? Contact our support team.
+            </p>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <a
+                href="https://wa.me/919284306159?text=Hi%20Rahim%2C%20I%20need%20help%20with%20Renvix%20LeadFlow"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-secondary"
+                style={{
+                  justifyContent: "center",
+                  padding: "12px",
+                  borderRadius: 10,
+                  display: "flex",
+                  textDecoration: "none",
+                  background: "rgba(37,211,102,0.08)",
+                  border: "1px solid rgba(37,211,102,0.2)",
+                  color: "#25d366"
+                }}
+              >
+                💬 WhatsApp Support
+              </a>
+              <a
+                href="mailto:support@renvixteach.in?subject=Renvix%20LeadFlow%20Support%20Request"
+                className="btn btn-secondary"
+                style={{
+                  justifyContent: "center",
+                  padding: "12px",
+                  borderRadius: 10,
+                  display: "flex",
+                  textDecoration: "none"
+                }}
+              >
+                ✉️ Email Support
+              </a>
+            </div>
+          </div>
 
           {/* Danger Zone */}
           <div className="card" style={{ borderColor: "rgba(255,71,87,0.2)" }}>
