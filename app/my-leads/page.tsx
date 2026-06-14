@@ -33,6 +33,7 @@ export default function MyLeadsPage() {
   const { savedLeads, removeLead, updateLeadStatus, updateLeadNotes, isLoggedIn, onboardingComplete } = useApp()
   const router = useRouter()
 
+  const [mounted, setMounted]         = useState(false)
   const [view, setView]               = useState<ViewMode>("table")
   const [search, setSearch]           = useState("")
   const [filterStatus, setFilterStatus] = useState("all")
@@ -45,6 +46,7 @@ export default function MyLeadsPage() {
 
   // Default to card/grid layout on mobile screens
   useEffect(() => {
+    setMounted(true)
     if (typeof window !== "undefined" && window.innerWidth <= 768) {
       setView("grid")
     }
@@ -337,102 +339,110 @@ export default function MyLeadsPage() {
               {(filterStatus !== "all" || filterPriority !== "all" || search) && " (filtered)"}
             </div>
 
-            {/* ── Table View ── */}
-            {view === "table" && (
-              <div style={{ border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden", overflowX: "auto" }}>
-                {/* Table header */}
-                <div style={{
-                  display: "grid",
-                  gridTemplateColumns: "36px 2fr 1fr 120px 100px 110px 140px 80px 44px",
-                  minWidth: 850,
-                  padding: "10px 16px",
-                  background: "var(--bg-well)",
-                  borderBottom: "1px solid var(--border)",
-                  gap: 12,
-                  alignItems: "center",
-                }}>
-                  {/* Select all */}
-                  <button onClick={toggleAll} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)", display: "flex", padding: 0 }}>
-                    {allSelected ? <CheckSquare2 size={16} style={{ color: "var(--accent-light)" }} /> : <Square size={16} />}
-                  </button>
+            {!mounted ? (
+              <div style={{ display: "flex", justifyContent: "center", padding: "80px 0" }}>
+                <div className="spinner" />
+              </div>
+            ) : (
+              <>
+                {/* ── Table View ── */}
+                {view === "table" && (
+                  <div style={{ border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden", overflowX: "auto" }}>
+                    {/* Table header */}
+                    <div style={{
+                      display: "grid",
+                      gridTemplateColumns: "36px 2fr 1fr 120px 100px 110px 140px 80px 44px",
+                      minWidth: 850,
+                      padding: "10px 16px",
+                      background: "var(--bg-well)",
+                      borderBottom: "1px solid var(--border)",
+                      gap: 12,
+                      alignItems: "center",
+                    }}>
+                      {/* Select all */}
+                      <button onClick={toggleAll} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)", display: "flex", padding: 0 }}>
+                        {allSelected ? <CheckSquare2 size={16} style={{ color: "var(--accent-light)" }} /> : <Square size={16} />}
+                      </button>
 
-                  {[
-                    { key: "name" as SortKey, label: "Business" },
-                    { key: "name" as SortKey, label: "Category", noSort: true },
-                    { key: "name" as SortKey, label: "Phone", noSort: true },
-                    { key: "score" as SortKey, label: "Score" },
-                    { key: "priority" as SortKey, label: "Priority" },
-                    { key: "status" as SortKey, label: "Status" },
-                    { key: "savedAt" as SortKey, label: "Saved" },
-                    { label: "Actions", noSort: true },
-                  ].map((col, i) => (
-                    <div
-                      key={i}
-                      onClick={() => !col.noSort && col.key && handleSort(col.key)}
-                      style={{
-                        fontSize: 11,
-                        fontWeight: 700,
-                        color: "var(--text-muted)",
-                        textTransform: "uppercase",
-                        letterSpacing: "0.06em",
-                        cursor: col.noSort ? "default" : "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 4,
-                        userSelect: "none",
-                      }}
-                    >
-                      {col.label}
-                      {!col.noSort && sortKey === col.key && (
-                        <ArrowUpDown size={11} style={{ color: "var(--accent-light)" }} />
-                      )}
+                      {[
+                        { key: "name" as SortKey, label: "Business" },
+                        { key: "name" as SortKey, label: "Category", noSort: true },
+                        { key: "name" as SortKey, label: "Phone", noSort: true },
+                        { key: "score" as SortKey, label: "Score" },
+                        { key: "priority" as SortKey, label: "Priority" },
+                        { key: "status" as SortKey, label: "Status" },
+                        { key: "savedAt" as SortKey, label: "Saved" },
+                        { label: "Actions", noSort: true },
+                      ].map((col, i) => (
+                        <div
+                          key={i}
+                          onClick={() => !col.noSort && col.key && handleSort(col.key)}
+                          style={{
+                            fontSize: 11,
+                            fontWeight: 700,
+                            color: "var(--text-muted)",
+                            textTransform: "uppercase",
+                            letterSpacing: "0.06em",
+                            cursor: col.noSort ? "default" : "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 4,
+                            userSelect: "none",
+                          }}
+                        >
+                          {col.label}
+                          {!col.noSort && sortKey === col.key && (
+                            <ArrowUpDown size={11} style={{ color: "var(--accent-light)" }} />
+                          )}
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
 
-                {/* Table rows */}
-                {filtered.length === 0 ? (
-                  <div className="empty-state" style={{ padding: "40px 20px" }}>
-                    <div className="empty-state-icon">🔎</div>
-                    <p style={{ color: "var(--text-muted)", fontSize: 14 }}>No leads match your filters</p>
+                    {/* Table rows */}
+                    {filtered.length === 0 ? (
+                      <div className="empty-state" style={{ padding: "40px 20px" }}>
+                        <div className="empty-state-icon">🔎</div>
+                        <p style={{ color: "var(--text-muted)", fontSize: 14 }}>No leads match your filters</p>
+                      </div>
+                    ) : (
+                      filtered.map((lead, idx) => (
+                        <LeadRow
+                          key={lead.placeId}
+                          lead={lead}
+                          selected={selected.has(lead.placeId)}
+                          onToggle={() => toggleOne(lead.placeId)}
+                          onStatusChange={s => updateLeadStatus(lead.placeId, s as any)}
+                          onDelete={() => removeLead(lead.placeId)}
+                          onNote={() => openNote(lead)}
+                          isEven={idx % 2 === 0}
+                        />
+                      ))
+                    )}
                   </div>
-                ) : (
-                  filtered.map((lead, idx) => (
-                    <LeadRow
-                      key={lead.placeId}
-                      lead={lead}
-                      selected={selected.has(lead.placeId)}
-                      onToggle={() => toggleOne(lead.placeId)}
-                      onStatusChange={s => updateLeadStatus(lead.placeId, s as any)}
-                      onDelete={() => removeLead(lead.placeId)}
-                      onNote={() => openNote(lead)}
-                      isEven={idx % 2 === 0}
-                    />
-                  ))
                 )}
-              </div>
-            )}
 
-            {/* ── Grid View ── */}
-            {view === "grid" && (
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 14 }}>
-                {filtered.length === 0 ? (
-                  <div className="empty-state" style={{ gridColumn: "1 / -1", padding: "40px 20px" }}>
-                    <p style={{ color: "var(--text-muted)" }}>No leads match your filters</p>
+                {/* ── Grid View ── */}
+                {view === "grid" && (
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 14 }}>
+                    {filtered.length === 0 ? (
+                      <div className="empty-state" style={{ gridColumn: "1 / -1", padding: "40px 20px" }}>
+                        <p style={{ color: "var(--text-muted)" }}>No leads match your filters</p>
+                      </div>
+                    ) : (
+                      filtered.map(lead => (
+                        <LeadGridCard
+                          key={lead.placeId}
+                          lead={lead}
+                          selected={selected.has(lead.placeId)}
+                          onToggle={() => toggleOne(lead.placeId)}
+                          onStatusChange={s => updateLeadStatus(lead.placeId, s as any)}
+                          onDelete={() => removeLead(lead.placeId)}
+                        />
+                      ))
+                    )}
                   </div>
-                ) : (
-                  filtered.map(lead => (
-                    <LeadGridCard
-                      key={lead.placeId}
-                      lead={lead}
-                      selected={selected.has(lead.placeId)}
-                      onToggle={() => toggleOne(lead.placeId)}
-                      onStatusChange={s => updateLeadStatus(lead.placeId, s as any)}
-                      onDelete={() => removeLead(lead.placeId)}
-                    />
-                  ))
                 )}
-              </div>
+              </>
             )}
           </>
         )}

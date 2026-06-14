@@ -33,6 +33,7 @@ export default function SearchPage() {
   const [selectedAreas, setSelectedAreas] = useState<string[]>([])
   const [viewMode, setViewMode] = useState<"grid" | "table">("table")
   const [isRestored, setIsRestored] = useState(false)
+  const [mounted, setMounted] = useState(false)
 
   // Dynamically detect city from query input to show relevant areas
   const queryCity = Object.keys(CITY_AREAS).find(c => 
@@ -43,6 +44,7 @@ export default function SearchPage() {
 
   // Restore search state from sessionStorage on mount
   useEffect(() => {
+    setMounted(true)
     try {
       const raw = sessionStorage.getItem("last_search_state")
       if (raw) {
@@ -56,6 +58,11 @@ export default function SearchPage() {
         setViewMode(parsed.viewMode || "table")
         setSearched(parsed.searched || false)
         setHasAutoSearched(true) // skip auto-search since we loaded cached search
+      } else {
+        // Default to grid/card view on mobile screens
+        if (typeof window !== "undefined" && window.innerWidth <= 768) {
+          setViewMode("grid")
+        }
       }
     } catch (e) {
       console.error("Failed to restore search state:", e)
@@ -503,7 +510,7 @@ export default function SearchPage() {
             )}
 
             {/* Results */}
-            {!loading && searched && (
+            {mounted && !loading && searched && (
               <>
                 {/* Results Header */}
                 <div className="flex items-center justify-between mb-4 search-results-header">
