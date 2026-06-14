@@ -17,12 +17,16 @@ const POPULAR_CITIES = [
 ]
 
 export default function OnboardingPage() {
-  const { user, saveSellerProfile, isLoggedIn } = useApp()
+  const { user, saveSellerProfile, isLoggedIn, onboardingComplete, syncComplete } = useApp()
   const router = useRouter()
 
   useEffect(() => {
-    if (!isLoggedIn) router.replace("/login")
-  }, [isLoggedIn, router])
+    if (!isLoggedIn) {
+      router.replace("/login")
+    } else if (syncComplete && onboardingComplete) {
+      router.replace("/search")
+    }
+  }, [isLoggedIn, syncComplete, onboardingComplete, router])
 
   const [step, setStep] = useState(0)
 

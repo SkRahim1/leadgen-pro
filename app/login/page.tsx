@@ -27,7 +27,7 @@ import {
 } from "lucide-react"
 
 export default function LoginPage() {
-  const { user } = useApp()
+  const { user, onboardingComplete, syncComplete } = useApp()
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -43,17 +43,14 @@ export default function LoginPage() {
 
   // Redirect if already logged in
   useEffect(() => {
-    if (user) {
-      // Check local storage for onboarding state
-      const raw = localStorage.getItem("leadgen_pro_state_" + user.id)
-      const state = raw ? JSON.parse(raw) : {}
-      if (state.onboardingComplete) {
+    if (user && syncComplete) {
+      if (onboardingComplete) {
         router.replace("/search")
       } else {
         router.replace("/onboarding")
       }
     }
-  }, [user, router])
+  }, [user, onboardingComplete, syncComplete, router])
 
   // Handle Firebase Google Authentication
   const handleGoogleLogin = async () => {
