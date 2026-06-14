@@ -44,12 +44,9 @@ export default function MyLeadsPage() {
   const [openNotes, setOpenNotes]     = useState<string | null>(null)
   const [noteText, setNoteText]       = useState("")
 
-  // Default to card/grid layout on mobile screens
+  // Mount on client
   useEffect(() => {
     setMounted(true)
-    if (typeof window !== "undefined" && window.innerWidth <= 768) {
-      setView("grid")
-    }
   }, [])
 
   useEffect(() => {
@@ -355,27 +352,10 @@ export default function MyLeadsPage() {
               <>
                 {/* ── Table View ── */}
                 {view === "table" && (
-                  <div style={{ 
-                    width: "100%", 
-                    maxWidth: "100%", 
-                    overflowX: "auto", 
-                    border: "1px solid var(--border)", 
-                    borderRadius: 12,
-                    background: "var(--table-bg)",
-                    display: "block"
-                  }}>
-                    <div style={{ width: "960px", minWidth: "960px", display: "block" }}>
-                      {/* Table header */}
-                      <div style={{
-                        display: "grid",
-                        gridTemplateColumns: "36px 2fr 1fr 120px 100px 110px 140px 80px 44px",
-                        width: "100%",
-                      padding: "10px 16px",
-                      background: "var(--bg-well)",
-                      borderBottom: "1px solid var(--border)",
-                      gap: 12,
-                      alignItems: "center",
-                    }}>
+                  <div className="leads-table-wrapper">
+                    <div className="leads-table-inner">
+                      {/* Table header - hidden on mobile */}
+                      <div className="leads-table-header">
                       {/* Select all */}
                       <button onClick={toggleAll} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)", display: "flex", padding: 0 }}>
                         {allSelected ? <CheckSquare2 size={16} style={{ color: "var(--accent-light)" }} /> : <Square size={16} />}
@@ -519,165 +499,298 @@ function LeadRow({ lead, selected, onToggle, onStatusChange, onDelete, onNote, i
     : null
 
   return (
-    <div style={{
-      display: "grid",
-      gridTemplateColumns: "36px 2fr 1fr 120px 100px 110px 140px 80px 44px",
-      width: "100%",
-      padding: "12px 16px",
-      gap: 12,
-      alignItems: "center",
-      background: selected ? "rgba(124,77,255,0.06)" : isEven ? "rgba(255,255,255,0.01)" : "transparent",
-      borderBottom: "1px solid var(--border)",
-      transition: "background 0.15s ease",
-    }}
-      onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.background = selected ? "rgba(124,77,255,0.08)" : "rgba(255,255,255,0.04)"}
-      onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.background = selected ? "rgba(124,77,255,0.06)" : isEven ? "rgba(255,255,255,0.01)" : "transparent"}
-    >
-      {/* Checkbox */}
-      <button onClick={onToggle} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)", display: "flex", padding: 0 }}>
-        {selected
-          ? <CheckSquare2 size={16} style={{ color: "var(--accent-light)" }} />
-          : <Square size={16} />
-        }
-      </button>
+    <>
+      {/* Desktop row */}
+      <div className="leads-table-row"
+        style={{
+          background: selected ? "rgba(124,77,255,0.06)" : isEven ? "rgba(255,255,255,0.01)" : "transparent",
+        }}
+        onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.background = selected ? "rgba(124,77,255,0.08)" : "rgba(255,255,255,0.04)"}
+        onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.background = selected ? "rgba(124,77,255,0.06)" : isEven ? "rgba(255,255,255,0.01)" : "transparent"}
+      >
+        {/* Checkbox */}
+        <button onClick={onToggle} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)", display: "flex", padding: 0 }}>
+          {selected
+            ? <CheckSquare2 size={16} style={{ color: "var(--accent-light)" }} />
+            : <Square size={16} />
+          }
+        </button>
 
-      {/* Business name */}
-      <div style={{ minWidth: 0 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
+        {/* Business name */}
+        <div style={{ minWidth: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
+            <div style={{ width: 6, height: 6, borderRadius: "50%", background: PRIORITY_COLORS[lead.priority], flexShrink: 0 }} />
+            <Link href={`/leads/${lead.placeId}`} style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              {lead.name}
+            </Link>
+          </div>
+          <div style={{ fontSize: 11, color: "var(--text-muted)", paddingLeft: 12 }}>{lead.city}</div>
+        </div>
+
+        {/* Category */}
+        <div className="leads-col-desktop" style={{ fontSize: 12, color: "var(--text-secondary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          {lead.category}
+        </div>
+
+        {/* Phone */}
+        <div className="leads-col-desktop" style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          {lead.phone ? (
+            <>
+              <Phone size={11} style={{ color: "var(--success)", flexShrink: 0 }} />
+              <span style={{ fontSize: 11, fontFamily: "monospace", color: "var(--text-secondary)", overflow: "hidden", textOverflow: "ellipsis" }}>{lead.phone}</span>
+            </>
+          ) : (
+            <span style={{ fontSize: 11, color: "var(--text-muted)" }}>—</span>
+          )}
+        </div>
+
+        {/* Score */}
+        <div className="leads-col-desktop" style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <span style={{ fontSize: 14, fontWeight: 800, color: PRIORITY_COLORS[lead.priority] }}>{lead.score}</span>
+          <div style={{ flex: 1, height: 3, background: "rgba(255,255,255,0.06)", borderRadius: 2, overflow: "hidden" }}>
+            <div style={{ width: `${lead.score}%`, height: "100%", background: PRIORITY_COLORS[lead.priority], borderRadius: 2 }} />
+          </div>
+        </div>
+
+        {/* Priority */}
+        <div className="leads-col-desktop">
+          {lead.priority === "HOT"  && <span className="badge-hot"  style={{ fontSize: 10 }}>🔥 HOT</span>}
+          {lead.priority === "WARM" && <span className="badge-warm" style={{ fontSize: 10 }}>⭐ WARM</span>}
+          {lead.priority === "COLD" && <span className="badge-cold" style={{ fontSize: 10 }}>🧊 COLD</span>}
+        </div>
+
+        {/* Status dropdown */}
+        <div style={{ position: "relative" }}>
+          <button
+            onClick={() => setStatusOpen(p => !p)}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 5,
+              padding: "5px 10px",
+              borderRadius: 6,
+              border: `1px solid ${statusInfo?.color}44`,
+              background: statusInfo?.bg,
+              color: statusInfo?.color,
+              fontSize: 11,
+              fontWeight: 600,
+              cursor: "pointer",
+              width: "100%",
+              justifyContent: "space-between",
+            }}
+          >
+            {statusInfo?.label}
+            <ChevronDown size={10} style={{ transform: statusOpen ? "rotate(180deg)" : "none", transition: "0.2s" }} />
+          </button>
+          {statusOpen && (
+            <div style={{
+              position: "absolute",
+              top: "calc(100% + 4px)",
+              left: 0,
+              zIndex: 50,
+              background: "var(--bg-elevated)",
+              border: "1px solid var(--border)",
+              borderRadius: 10,
+              overflow: "hidden",
+              minWidth: 160,
+              boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
+            }}>
+              {STATUS_OPTIONS.map(s => (
+                <button
+                  key={s.value}
+                  onClick={() => { onStatusChange(s.value); setStatusOpen(false) }}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    width: "100%",
+                    padding: "9px 14px",
+                    background: lead.status === s.value ? s.bg : "transparent",
+                    color: s.color,
+                    border: "none",
+                    fontSize: 12,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    textAlign: "left",
+                  }}
+                >
+                  {lead.status === s.value && <Check size={10} />}
+                  {s.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Saved at */}
+        <div className="leads-col-desktop" style={{ fontSize: 11, color: "var(--text-muted)" }}>
+          {new Date(lead.savedAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
+        </div>
+
+        {/* Actions */}
+        <div style={{ display: "flex", gap: 4 }}>
+          {whatsappUrl && (
+            <a href={whatsappUrl} target="_blank" rel="noopener noreferrer"
+              style={{ width: 28, height: 28, borderRadius: 6, background: "rgba(37,211,102,0.1)", border: "1px solid rgba(37,211,102,0.2)", display: "flex", alignItems: "center", justifyContent: "center", color: "#25d366" }}
+              title="WhatsApp"
+            >
+              <Share2 size={12} />
+            </a>
+          )}
+          <button
+            onClick={onNote}
+            style={{ width: 28, height: 28, borderRadius: 6, background: "rgba(255,255,255,0.04)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-muted)", cursor: "pointer" }}
+            title="Add note"
+          >
+            <MessageSquare size={12} />
+          </button>
+          <button
+            onClick={() => { if (confirm("Remove this lead?")) onDelete() }}
+            style={{ width: 28, height: 28, borderRadius: 6, background: "rgba(255,71,87,0.06)", border: "1px solid rgba(255,71,87,0.2)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--hot)", cursor: "pointer" }}
+            title="Remove"
+          >
+            <Trash2 size={12} />
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile row - compact stacked layout */}
+      <div className="leads-mobile-row"
+        style={{
+          background: selected ? "rgba(124,77,255,0.06)" : isEven ? "rgba(255,255,255,0.01)" : "transparent",
+          borderBottom: "1px solid var(--border)",
+          padding: "12px 14px",
+        }}
+      >
+        {/* Top: checkbox + name + priority badge */}
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+          <button onClick={onToggle} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)", display: "flex", padding: 0, flexShrink: 0 }}>
+            {selected
+              ? <CheckSquare2 size={16} style={{ color: "var(--accent-light)" }} />
+              : <Square size={16} />
+            }
+          </button>
           <div style={{ width: 6, height: 6, borderRadius: "50%", background: PRIORITY_COLORS[lead.priority], flexShrink: 0 }} />
-          <Link href={`/leads/${lead.placeId}`} style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          <Link href={`/leads/${lead.placeId}`} style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1, minWidth: 0 }}>
             {lead.name}
           </Link>
+          {lead.priority === "HOT"  && <span className="badge-hot"  style={{ fontSize: 9, flexShrink: 0 }}>🔥</span>}
+          {lead.priority === "WARM" && <span className="badge-warm" style={{ fontSize: 9, flexShrink: 0 }}>⭐</span>}
+          {lead.priority === "COLD" && <span className="badge-cold" style={{ fontSize: 9, flexShrink: 0 }}>🧊</span>}
         </div>
-        <div style={{ fontSize: 11, color: "var(--text-muted)", paddingLeft: 12 }}>{lead.city}</div>
-      </div>
 
-      {/* Category */}
-      <div style={{ fontSize: 12, color: "var(--text-secondary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-        {lead.category}
-      </div>
-
-      {/* Phone */}
-      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-        {lead.phone ? (
-          <>
-            <Phone size={11} style={{ color: "var(--success)", flexShrink: 0 }} />
-            <span style={{ fontSize: 11, fontFamily: "monospace", color: "var(--text-secondary)", overflow: "hidden", textOverflow: "ellipsis" }}>{lead.phone}</span>
-          </>
-        ) : (
-          <span style={{ fontSize: 11, color: "var(--text-muted)" }}>—</span>
-        )}
-      </div>
-
-      {/* Score */}
-      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-        <span style={{ fontSize: 14, fontWeight: 800, color: PRIORITY_COLORS[lead.priority] }}>{lead.score}</span>
-        <div style={{ flex: 1, height: 3, background: "rgba(255,255,255,0.06)", borderRadius: 2, overflow: "hidden" }}>
-          <div style={{ width: `${lead.score}%`, height: "100%", background: PRIORITY_COLORS[lead.priority], borderRadius: 2 }} />
+        {/* Middle: category, city, phone */}
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, paddingLeft: 24, flexWrap: "wrap" }}>
+          <span style={{ fontSize: 11, color: "var(--text-muted)" }}>{lead.category}</span>
+          <span style={{ fontSize: 11, color: "var(--border)" }}>·</span>
+          <span style={{ fontSize: 11, color: "var(--text-muted)" }}>{lead.city}</span>
+          {lead.phone && (
+            <>
+              <span style={{ fontSize: 11, color: "var(--border)" }}>·</span>
+              <span style={{ fontSize: 10, fontFamily: "monospace", color: "var(--text-secondary)" }}>
+                <Phone size={9} style={{ color: "var(--success)", display: "inline", verticalAlign: "middle", marginRight: 3 }} />
+                {lead.phone}
+              </span>
+            </>
+          )}
         </div>
-      </div>
 
-      {/* Priority */}
-      <div>
-        {lead.priority === "HOT"  && <span className="badge-hot"  style={{ fontSize: 10 }}>🔥 HOT</span>}
-        {lead.priority === "WARM" && <span className="badge-warm" style={{ fontSize: 10 }}>⭐ WARM</span>}
-        {lead.priority === "COLD" && <span className="badge-cold" style={{ fontSize: 10 }}>🧊 COLD</span>}
-      </div>
-
-      {/* Status dropdown */}
-      <div style={{ position: "relative" }}>
-        <button
-          onClick={() => setStatusOpen(p => !p)}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 5,
-            padding: "5px 10px",
-            borderRadius: 6,
-            border: `1px solid ${statusInfo?.color}44`,
-            background: statusInfo?.bg,
-            color: statusInfo?.color,
-            fontSize: 11,
-            fontWeight: 600,
-            cursor: "pointer",
-            width: "100%",
-            justifyContent: "space-between",
-          }}
-        >
-          {statusInfo?.label}
-          <ChevronDown size={10} style={{ transform: statusOpen ? "rotate(180deg)" : "none", transition: "0.2s" }} />
-        </button>
-        {statusOpen && (
-          <div style={{
-            position: "absolute",
-            top: "calc(100% + 4px)",
-            left: 0,
-            zIndex: 50,
-            background: "var(--bg-elevated)",
-            border: "1px solid var(--border)",
-            borderRadius: 10,
-            overflow: "hidden",
-            minWidth: 160,
-            boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
-          }}>
-            {STATUS_OPTIONS.map(s => (
-              <button
-                key={s.value}
-                onClick={() => { onStatusChange(s.value); setStatusOpen(false) }}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 8,
-                  width: "100%",
-                  padding: "9px 14px",
-                  background: lead.status === s.value ? s.bg : "transparent",
-                  color: s.color,
-                  border: "none",
-                  fontSize: 12,
-                  fontWeight: 600,
-                  cursor: "pointer",
-                  textAlign: "left",
-                }}
-              >
-                {lead.status === s.value && <Check size={10} />}
-                {s.label}
-              </button>
-            ))}
+        {/* Bottom: status + score + actions */}
+        <div style={{ display: "flex", alignItems: "center", gap: 8, paddingLeft: 24 }}>
+          {/* Status */}
+          <div style={{ position: "relative" }}>
+            <button
+              onClick={() => setStatusOpen(p => !p)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 4,
+                padding: "4px 8px",
+                borderRadius: 6,
+                border: `1px solid ${statusInfo?.color}44`,
+                background: statusInfo?.bg,
+                color: statusInfo?.color,
+                fontSize: 10,
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              {statusInfo?.label}
+              <ChevronDown size={9} />
+            </button>
+            {statusOpen && (
+              <div style={{
+                position: "absolute",
+                top: "calc(100% + 4px)",
+                left: 0,
+                zIndex: 50,
+                background: "var(--bg-elevated)",
+                border: "1px solid var(--border)",
+                borderRadius: 10,
+                overflow: "hidden",
+                minWidth: 140,
+                boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
+              }}>
+                {STATUS_OPTIONS.map(s => (
+                  <button
+                    key={s.value}
+                    onClick={() => { onStatusChange(s.value); setStatusOpen(false) }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                      width: "100%",
+                      padding: "8px 12px",
+                      background: lead.status === s.value ? s.bg : "transparent",
+                      color: s.color,
+                      border: "none",
+                      fontSize: 11,
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
+                    {lead.status === s.value && <Check size={9} />}
+                    {s.label}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
-        )}
-      </div>
 
-      {/* Saved at */}
-      <div style={{ fontSize: 11, color: "var(--text-muted)" }}>
-        {new Date(lead.savedAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
-      </div>
+          {/* Score */}
+          <span style={{ fontSize: 12, fontWeight: 800, color: PRIORITY_COLORS[lead.priority] }}>{lead.score}</span>
 
-      {/* Actions */}
-      <div style={{ display: "flex", gap: 4 }}>
-        {whatsappUrl && (
-          <a href={whatsappUrl} target="_blank" rel="noopener noreferrer"
-            style={{ width: 28, height: 28, borderRadius: 6, background: "rgba(37,211,102,0.1)", border: "1px solid rgba(37,211,102,0.2)", display: "flex", alignItems: "center", justifyContent: "center", color: "#25d366" }}
-            title="WhatsApp"
-          >
-            <Share2 size={12} />
-          </a>
-        )}
-        <button
-          onClick={onNote}
-          style={{ width: 28, height: 28, borderRadius: 6, background: "rgba(255,255,255,0.04)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-muted)", cursor: "pointer" }}
-          title="Add note"
-        >
-          <MessageSquare size={12} />
-        </button>
-        <button
-          onClick={() => { if (confirm("Remove this lead?")) onDelete() }}
-          style={{ width: 28, height: 28, borderRadius: 6, background: "rgba(255,71,87,0.06)", border: "1px solid rgba(255,71,87,0.2)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--hot)", cursor: "pointer" }}
-          title="Remove"
-        >
-          <Trash2 size={12} />
-        </button>
+          {/* Date */}
+          <span style={{ fontSize: 10, color: "var(--text-muted)" }}>
+            {new Date(lead.savedAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
+          </span>
+
+          <div style={{ flex: 1 }} />
+
+          {/* Actions */}
+          <div style={{ display: "flex", gap: 4 }}>
+            {whatsappUrl && (
+              <a href={whatsappUrl} target="_blank" rel="noopener noreferrer"
+                style={{ width: 26, height: 26, borderRadius: 6, background: "rgba(37,211,102,0.1)", border: "1px solid rgba(37,211,102,0.2)", display: "flex", alignItems: "center", justifyContent: "center", color: "#25d366" }}
+              >
+                <Share2 size={11} />
+              </a>
+            )}
+            <button onClick={onNote}
+              style={{ width: 26, height: 26, borderRadius: 6, background: "rgba(255,255,255,0.04)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-muted)", cursor: "pointer" }}
+            >
+              <MessageSquare size={11} />
+            </button>
+            <button onClick={() => { if (confirm("Remove this lead?")) onDelete() }}
+              style={{ width: 26, height: 26, borderRadius: 6, background: "rgba(255,71,87,0.06)", border: "1px solid rgba(255,71,87,0.2)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--hot)", cursor: "pointer" }}
+            >
+              <Trash2 size={11} />
+            </button>
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   )
 }
 
