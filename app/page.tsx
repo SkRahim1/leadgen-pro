@@ -197,10 +197,10 @@ export default function LandingPage() {
           <p style={{ color: "var(--text-secondary)", marginBottom: 48 }}>Start free. Upgrade when you're ready to scale.</p>
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 16, maxWidth: 900, margin: "0 auto" }}>
-            <PricingCard plan="Free" price="₹0" monthlyLeads="200 leads/mo" features={["10 saved leads", "Basic search"]} color="var(--text-muted)" />
-            <PricingCard plan="Starter" price="₹799/mo" monthlyLeads="1,500 leads/mo" features={["100 saved leads", "CSV export", "WhatsApp share"]} color="var(--cold)" />
-            <PricingCard plan="Pro" price="₹1,999/mo" monthlyLeads="7,500 leads/mo" features={["Unlimited saved leads", "CSV + Sheets export", "3 seller profiles"]} color="var(--accent-light)" featured />
-            <PricingCard plan="Business" price="₹4,999/mo" monthlyLeads="15,000 leads/mo" features={["Unlimited saved leads", "API access", "3 team members"]} color="var(--warm)" />
+            <PricingCard plan="Free" price="₹0" monthlyLeads="200 leads/mo" features={["10 saved leads", "Basic search", "No Excel export"]} color="var(--text-muted)" />
+            <PricingCard plan="Starter" price="₹799/mo" monthlyLeads="1,500 leads/mo" features={["100 saved leads", "CRM & WhatsApp Direct", "No Excel export"]} color="var(--cold)" />
+            <PricingCard plan="Pro" price="₹1,999/mo" monthlyLeads="7,500 leads/mo" features={["Unlimited saved leads", "CRM & WhatsApp Direct", "Export up to 1,000 leads/mo"]} color="var(--accent-light)" featured />
+            <PricingCard plan="Business" price="₹4,999/mo" monthlyLeads="15,000 leads/mo" features={["Unlimited saved leads", "Unlimited CSV export", "API access"]} color="var(--warm)" />
           </div>
         </div>
       </section>

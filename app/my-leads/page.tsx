@@ -30,7 +30,7 @@ type ViewMode = "table" | "grid"
 type SortKey = "savedAt" | "score" | "name" | "status" | "priority"
 
 export default function MyLeadsPage() {
-  const { savedLeads, removeLead, updateLeadStatus, updateLeadNotes, isLoggedIn, onboardingComplete, syncComplete } = useApp()
+  const { savedLeads, removeLead, updateLeadStatus, updateLeadNotes, isLoggedIn, onboardingComplete, syncComplete, user } = useApp()
   const router = useRouter()
 
   const [mounted, setMounted]         = useState(false)
@@ -119,6 +119,11 @@ export default function MyLeadsPage() {
   const selectedLeads = filtered.filter(l => selected.has(l.placeId))
 
   const handleBulkExport = () => {
+    const userPlan = user?.plan || "FREE"
+    if (userPlan === "FREE" || userPlan === "STARTER") {
+      alert("Excel export is not available on your plan. Please upgrade to Pro or Business to download CSVs.")
+      return
+    }
     const leads = someSelected ? selectedLeads : filtered
     if (!leads.length) return
     const headers = ["Name", "Category", "Phone", "City", "Score", "Priority", "Status", "Pitch", "Saved At"]
@@ -286,7 +291,7 @@ export default function MyLeadsPage() {
 
               {/* Export */}
               <button className="btn btn-secondary btn-sm" onClick={handleBulkExport}>
-                <Download size={13} /> {someSelected ? `Export (${selected.size})` : "Export All"}
+                <Download size={13} /> {user?.plan === "FREE" || user?.plan === "STARTER" ? "Export (PRO)" : (someSelected ? `Export (${selected.size})` : "Export All")}
               </button>
             </div>
 

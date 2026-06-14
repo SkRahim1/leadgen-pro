@@ -54,11 +54,11 @@ export default function SettingsPage() {
     router.push("/onboarding")
   }
 
-  const PLAN_FEATURES: Record<string, { monthlyLeads: string; savedLeads: string; color: string; next?: string }> = {
-    FREE: { monthlyLeads: "200", savedLeads: "10", color: "var(--text-muted)", next: "Upgrade to Starter ₹799/mo →" },
-    STARTER: { monthlyLeads: "1,500", savedLeads: "100", color: "var(--cold)", next: "Upgrade to Pro ₹1,999/mo →" },
-    PRO: { monthlyLeads: "7,500", savedLeads: "Unlimited", color: "var(--accent-light)", next: "Upgrade to Business ₹4,999/mo →" },
-    BUSINESS: { monthlyLeads: "15,000", savedLeads: "Unlimited", color: "var(--warm)" },
+  const PLAN_FEATURES: Record<string, { monthlyLeads: string; savedLeads: string; export: string; color: string; next?: string }> = {
+    FREE: { monthlyLeads: "200", savedLeads: "10", export: "No Export", color: "var(--text-muted)", next: "Upgrade to Starter ₹799/mo →" },
+    STARTER: { monthlyLeads: "1,500", savedLeads: "100", export: "No Export", color: "var(--cold)", next: "Upgrade to Pro ₹1,999/mo →" },
+    PRO: { monthlyLeads: "7,500", savedLeads: "Unlimited", export: "Limited Export (1K/mo)", color: "var(--accent-light)", next: "Upgrade to Business ₹4,999/mo →" },
+    BUSINESS: { monthlyLeads: "15,000", savedLeads: "Unlimited", export: "Unlimited Export", color: "var(--warm)" },
   }
 
   const planInfo = PLAN_FEATURES[user?.plan || "FREE"]
@@ -173,8 +173,8 @@ export default function SettingsPage() {
               </div>
               <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border)", borderRadius: 10, padding: "14px 16px" }}>
                 <div style={{ fontSize: 11, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6 }}>Monthly Limit</div>
-                <div style={{ fontSize: 13, fontWeight: 600 }}>{planInfo.monthlyLeads} leads/month</div>
-                <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{planInfo.savedLeads} saved leads</div>
+                <div style={{ fontSize: 13, fontWeight: 600 }}>{planInfo.monthlyLeads} leads/mo · {planInfo.export}</div>
+                <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{planInfo.savedLeads} saved leads limit</div>
               </div>
             </div>
             {planInfo.next && (

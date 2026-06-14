@@ -201,6 +201,11 @@ export default function SearchPage() {
   const coldCount = filteredResults.filter(l => l.priority === "COLD").length
 
   const handleExportCSV = () => {
+    const userPlan = user?.plan || "FREE"
+    if (userPlan === "FREE" || userPlan === "STARTER") {
+      alert("Excel export is not available on your plan. Please upgrade to Pro or Business to download CSVs.")
+      return
+    }
     if (!filteredResults.length) return
     const headers = ["Name", "Category", "Industry", "Phone", "Phone Confidence", "Email", "Address", "City", "State", "Has Website", "Website URL", "Rating", "Reviews", "Newly Opened", "Lead Score", "Priority", "Pitch Suggestion"]
     const rows = filteredResults.map(l => [
@@ -567,7 +572,7 @@ export default function SearchPage() {
                       onClick={handleExportCSV}
                       disabled={!filteredResults.length}
                     >
-                      <Download size={13} /> Export CSV
+                      <Download size={13} /> {user?.plan === "FREE" || user?.plan === "STARTER" ? "Export CSV (PRO)" : "Export CSV"}
                     </button>
                   </div>
                 </div>
