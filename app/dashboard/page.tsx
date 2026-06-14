@@ -9,13 +9,16 @@ import { TrendingUp, Flame, Star, ThumbsUp, Download, Zap } from "lucide-react"
 import Link from "next/link"
 
 export default function DashboardPage() {
-  const { savedLeads, sellerProfile, isLoggedIn, onboardingComplete, user } = useApp()
+  const { savedLeads, sellerProfile, isLoggedIn, onboardingComplete, user, syncComplete } = useApp()
   const router = useRouter()
 
   useEffect(() => {
-    if (!isLoggedIn) router.replace("/login")
-    else if (!onboardingComplete) router.replace("/onboarding")
-  }, [isLoggedIn, onboardingComplete, router])
+    if (!isLoggedIn) {
+      router.replace("/login")
+    } else if (syncComplete && !onboardingComplete) {
+      router.replace("/onboarding")
+    }
+  }, [isLoggedIn, syncComplete, onboardingComplete, router])
 
   // Stats
   const total = savedLeads.length

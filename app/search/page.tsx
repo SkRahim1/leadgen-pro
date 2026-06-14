@@ -14,7 +14,7 @@ import { Search, MapPin, Filter, SlidersHorizontal, Download, Loader2, X, Chevro
 const RADIUS_OPTIONS = [1, 2, 5, 10, 25, 50]
 
 export default function SearchPage() {
-  const { user, sellerProfile, isLoggedIn, onboardingComplete, saveLead, removeLead, isLeadSaved } = useApp()
+  const { user, sellerProfile, isLoggedIn, onboardingComplete, saveLead, removeLead, isLeadSaved, syncComplete } = useApp()
   const router = useRouter()
 
   const [query, setQuery] = useState("")
@@ -112,9 +112,12 @@ export default function SearchPage() {
 
   // Auth guard
   useEffect(() => {
-    if (!isLoggedIn) router.replace("/login")
-    else if (!onboardingComplete) router.replace("/onboarding")
-  }, [isLoggedIn, onboardingComplete, router])
+    if (!isLoggedIn) {
+      router.replace("/login")
+    } else if (syncComplete && !onboardingComplete) {
+      router.replace("/onboarding")
+    }
+  }, [isLoggedIn, syncComplete, onboardingComplete, router])
 
   // ─── AUTO-SEARCH on first load ─────────────────────────────────────────────
   // When user lands from onboarding, automatically search for their target

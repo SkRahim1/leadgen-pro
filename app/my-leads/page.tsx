@@ -30,7 +30,7 @@ type ViewMode = "table" | "grid"
 type SortKey = "savedAt" | "score" | "name" | "status" | "priority"
 
 export default function MyLeadsPage() {
-  const { savedLeads, removeLead, updateLeadStatus, updateLeadNotes, isLoggedIn, onboardingComplete } = useApp()
+  const { savedLeads, removeLead, updateLeadStatus, updateLeadNotes, isLoggedIn, onboardingComplete, syncComplete } = useApp()
   const router = useRouter()
 
   const [mounted, setMounted]         = useState(false)
@@ -53,9 +53,12 @@ export default function MyLeadsPage() {
   }, [])
 
   useEffect(() => {
-    if (!isLoggedIn) router.replace("/login")
-    else if (!onboardingComplete) router.replace("/onboarding")
-  }, [isLoggedIn, onboardingComplete, router])
+    if (!isLoggedIn) {
+      router.replace("/login")
+    } else if (syncComplete && !onboardingComplete) {
+      router.replace("/onboarding")
+    }
+  }, [isLoggedIn, syncComplete, onboardingComplete, router])
 
   // ─── Filter + Sort ──────────────────────────────────────────────────────────
   const filtered = useMemo(() => {

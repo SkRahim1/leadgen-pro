@@ -9,7 +9,7 @@ import { SELLER_TYPES } from "@/lib/data/sellerTypes"
 import { Save, CheckCircle2, Trash2, User, Zap, ChevronRight, X } from "lucide-react"
 
 export default function SettingsPage() {
-  const { user, sellerProfile, saveSellerProfile, logout, savedLeads, isLoggedIn, onboardingComplete, theme, setTheme } = useApp()
+  const { user, sellerProfile, saveSellerProfile, logout, savedLeads, isLoggedIn, onboardingComplete, theme, setTheme, syncComplete } = useApp()
   const router = useRouter()
   const [saved, setSaved] = useState(false)
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
@@ -23,9 +23,12 @@ export default function SettingsPage() {
   })
 
   useEffect(() => {
-    if (!isLoggedIn) router.replace("/login")
-    else if (!onboardingComplete) router.replace("/onboarding")
-  }, [isLoggedIn, onboardingComplete, router])
+    if (!isLoggedIn) {
+      router.replace("/login")
+    } else if (syncComplete && !onboardingComplete) {
+      router.replace("/onboarding")
+    }
+  }, [isLoggedIn, syncComplete, onboardingComplete, router])
 
   useEffect(() => {
     if (sellerProfile) {

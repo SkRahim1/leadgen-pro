@@ -66,6 +66,7 @@ interface AppContextValue extends AppState {
   updateLeadStatus: (placeId: string, status: SavedLead["status"]) => void
   updateLeadNotes: (placeId: string, notes: string) => void
   isLeadSaved: (placeId: string) => boolean
+  syncComplete: boolean
 }
 
 const AppContext = createContext<AppContextValue | null>(null)
@@ -84,6 +85,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<AppState>(DEFAULT_STATE)
   const [hydrated, setHydrated] = useState(false)
   const [theme, setThemeState] = useState<"light" | "dark">("dark")
+  const [syncComplete, setSyncComplete] = useState(false)
 
   // Load theme preference on mount
   useEffect(() => {
@@ -178,10 +180,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           }
         } catch (err) {
           console.warn("[AppContext] Firestore sync-read failed, using offline cache:", err)
+        } finally {
+          setSyncComplete(true) // Sync load finished (success or fail)
         }
 
       } else {
         setState(DEFAULT_STATE)
+        setSyncComplete(false)
         setHydrated(true)
       }
     })
@@ -203,24 +208,26 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     // Save to local storage
     localStorage.setItem(userKey, JSON.stringify(statePayload))
 
-    // Save to Firestore (Async, background write)
-    const syncToFirestore = async () => {
-      try {
-        const docRef = doc(db, "users", state.user!.id)
-        await setDoc(docRef, statePayload, { merge: true })
-      } catch (err) {
-        console.warn("[AppContext] Firestore sync-write failed, using offline fallback:", err)
+    // Save to Firestore only AFTER the initial sync read has fully finished
+    if (syncComplete) {
+      const syncToFirestore = async () => {
+        try {
+          const docRef = doc(db, "users", state.user!.id)
+          await setDoc(docRef, statePayload, { merge: true })
+        } catch (err) {
+          console.warn("[AppContext] Firestore sync-write failed, using offline fallback:", err)
+        }
       }
+      syncToFirestore()
     }
-    
-    syncToFirestore()
   }, [
     state.sellerProfile,
     state.savedLeads,
     state.onboardingComplete,
     state.isLoggedIn,
     state.user,
-    hydrated
+    hydrated,
+    syncComplete
   ])
 
   // Login handler
@@ -299,6 +306,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       updateLeadStatus,
       updateLeadNotes,
       isLeadSaved,
+      syncComplete,
     }}>
       {children}
     </AppContext.Provider>
