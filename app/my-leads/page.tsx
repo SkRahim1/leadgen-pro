@@ -193,7 +193,7 @@ export default function MyLeadsPage() {
       <div className="bg-glow" />
       <Navbar />
 
-      <div className="container" style={{ maxWidth: 1400, margin: "0 auto", paddingTop: 24, paddingBottom: 24 }}>
+      <div className="container my-leads-container" style={{ width: "100%", maxWidth: 1400, margin: "0 auto", paddingTop: 24, paddingBottom: 24 }}>
 
         {/* ── Header ── */}
         <div className="flex items-center justify-between my-leads-header" style={{ marginBottom: 24 }}>
@@ -295,46 +295,48 @@ export default function MyLeadsPage() {
             {/* ── Bulk Action Bar (when selection active) ── */}
             {someSelected && (
               <div className="my-leads-bulk-bar animate-fade-in">
-                <span style={{ fontSize: 12, fontWeight: 700, color: "var(--accent-light)" }}>
-                  {selected.size} selected
-                </span>
-                <div style={{ width: 1, height: 16, background: "var(--border)" }} />
+                <div className="my-leads-bulk-group" style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: "var(--accent-light)" }}>
+                    {selected.size} selected
+                  </span>
+                  <div className="leads-col-desktop" style={{ width: 1, height: 16, background: "var(--border)" }} />
+                  <span style={{ fontSize: 12, color: "var(--text-muted)" }}>Mark as:</span>
+                  {STATUS_OPTIONS.map(s => (
+                    <button
+                      key={s.value}
+                      onClick={() => handleBulkStatus(s.value)}
+                      style={{
+                        padding: "4px 10px",
+                        borderRadius: 6,
+                        border: `1px solid ${s.color}44`,
+                        background: s.bg,
+                        color: s.color,
+                        fontSize: 11,
+                        fontWeight: 600,
+                        cursor: "pointer",
+                      }}
+                    >
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
 
-                {/* Bulk status change */}
-                <span style={{ fontSize: 12, color: "var(--text-muted)" }}>Mark as:</span>
-                {STATUS_OPTIONS.map(s => (
-                  <button
-                    key={s.value}
-                    onClick={() => handleBulkStatus(s.value)}
-                    style={{
-                      padding: "4px 10px",
-                      borderRadius: 6,
-                      border: `1px solid ${s.color}44`,
-                      background: s.bg,
-                      color: s.color,
-                      fontSize: 11,
-                      fontWeight: 600,
-                      cursor: "pointer",
-                    }}
-                  >
-                    {s.label}
+                <div className="leads-col-desktop" style={{ flex: 1 }} />
+
+                <div className="my-leads-bulk-actions-wrapper" style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                  <button className="btn btn-primary btn-sm" onClick={handleBulkWhatsApp} style={{ background: "#25d366", boxShadow: "none" }}>
+                    <Share2 size={12} /> WhatsApp ({selectedLeads.filter(l => l.phone).length})
                   </button>
-                ))}
-
-                <div style={{ flex: 1 }} />
-
-                <button className="btn btn-primary btn-sm" onClick={handleBulkWhatsApp} style={{ background: "#25d366", boxShadow: "none" }}>
-                  <Share2 size={12} /> WhatsApp ({selectedLeads.filter(l => l.phone).length})
-                </button>
-                <button className="btn btn-danger btn-sm" onClick={handleBulkDelete}>
-                  <Trash2 size={12} /> Remove
-                </button>
-                <button
-                  onClick={() => setSelected(new Set())}
-                  style={{ fontSize: 12, color: "var(--text-muted)", background: "none", border: "none", cursor: "pointer", padding: "4px 8px" }}
-                >
-                  ✕ Clear
-                </button>
+                  <button className="btn btn-danger btn-sm" onClick={handleBulkDelete}>
+                    <Trash2 size={12} /> Remove
+                  </button>
+                  <button
+                    onClick={() => setSelected(new Set())}
+                    style={{ fontSize: 12, color: "var(--text-muted)", background: "none", border: "none", cursor: "pointer", padding: "4px 8px" }}
+                  >
+                    ✕ Clear
+                  </button>
+                </div>
               </div>
             )}
 

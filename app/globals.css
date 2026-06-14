@@ -388,6 +388,10 @@ input, textarea, select {
   padding: 0 24px;
 }
 
+.my-leads-container {
+  width: 100%;
+}
+
 /* ─── Navbar ──────────────────────────────────────────────────────────────── */
 .navbar {
   position: sticky;
@@ -513,7 +517,7 @@ input, textarea, select {
 }
 
 .leads-table-inner {
-  min-width: 0;
+  min-width: 1000px;
 }
 
 .leads-table-header {
@@ -814,6 +818,10 @@ input, textarea, select {
 @media (max-width: 768px) {
   .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
   .container { padding: 0 16px; }
+  .my-leads-container {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
 }
 
 /* ─── Animations ──────────────────────────────────────────────────────────── */
@@ -1046,25 +1054,46 @@ input, textarea, select {
   .my-leads-bulk-bar {
     flex-direction: column !important;
     align-items: stretch !important;
-    gap: 8px !important;
+    gap: 12px !important;
+  }
+
+  .my-leads-bulk-bar .my-leads-bulk-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .my-leads-bulk-bar .my-leads-bulk-actions-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    width: 100% !important;
+    justify-content: flex-start !important;
   }
 
   /* Leads Table - Mobile Responsive */
   .leads-table-wrapper {
-    overflow-x: hidden !important;
+    overflow-x: auto !important;
     border-radius: 10px !important;
   }
 
   .leads-table-header {
-    display: none !important;
+    display: grid !important;
   }
 
   .leads-table-row {
-    display: none !important;
+    display: grid !important;
+  }
+
+  .leads-table-row .leads-col-desktop,
+  .leads-table-header .leads-col-desktop {
+    display: block !important;
   }
 
   .leads-mobile-row {
-    display: block !important;
+    display: none !important;
   }
 
   .leads-col-desktop {
