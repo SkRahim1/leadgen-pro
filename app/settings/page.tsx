@@ -363,7 +363,7 @@ export default function SettingsPage() {
             }}>
               <img
                 src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(
-                  `upi://pay?pa=skrahim786@ybl&pn=Rahim%20Muktar%20Shaikh&am=${upgradePlan === "STARTER" ? 799 : (upgradePlan === "PRO" ? 1999 : 4999)}&cu=INR&tn=LeadFlow%20${upgradePlan}%20Upgrade`
+                  `upi://pay?pa=srahim786@ybl&pn=Rahim%20Muktar%20Shaikh&am=${upgradePlan === "STARTER" ? 799 : (upgradePlan === "PRO" ? 1999 : 4999)}&cu=INR&tn=LeadFlow%20${upgradePlan}%20Upgrade`
                 )}`}
                 alt="Payment QR Code"
                 style={{ width: 200, height: 200, display: "block" }}
