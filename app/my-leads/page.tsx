@@ -356,13 +356,15 @@ export default function MyLeadsPage() {
                     overflowX: "auto", 
                     border: "1px solid var(--border)", 
                     borderRadius: 12,
-                    background: "var(--table-bg)"
+                    background: "var(--table-bg)",
+                    display: "block"
                   }}>
-                    {/* Table header */}
-                    <div style={{
-                      display: "grid",
-                      gridTemplateColumns: "36px 2fr 1fr 120px 100px 110px 140px 80px 44px",
-                      width: "960px",
+                    <div style={{ width: "960px", minWidth: "960px", display: "block" }}>
+                      {/* Table header */}
+                      <div style={{
+                        display: "grid",
+                        gridTemplateColumns: "36px 2fr 1fr 120px 100px 110px 140px 80px 44px",
+                        width: "100%",
                       padding: "10px 16px",
                       background: "var(--bg-well)",
                       borderBottom: "1px solid var(--border)",
@@ -428,6 +430,7 @@ export default function MyLeadsPage() {
                         />
                       ))
                     )}
+                    </div>
                   </div>
                 )}
 
@@ -514,7 +517,7 @@ function LeadRow({ lead, selected, onToggle, onStatusChange, onDelete, onNote, i
     <div style={{
       display: "grid",
       gridTemplateColumns: "36px 2fr 1fr 120px 100px 110px 140px 80px 44px",
-      width: "960px",
+      width: "100%",
       padding: "12px 16px",
       gap: 12,
       alignItems: "center",
