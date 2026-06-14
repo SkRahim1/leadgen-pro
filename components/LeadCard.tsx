@@ -39,17 +39,17 @@ export default function LeadCard({ lead, index = 0, onClick }: LeadCardProps) {
   return (
     <div
       className={`lead-card ${priorityClass} animate-fade-in-up`}
-      style={{ animationDelay: `${index * 0.05}s`, opacity: 0 }}
+      style={{ animationDelay: `${index * 0.05}s`, opacity: 0, padding: "14px 16px" }}
       onClick={handleClick}
     >
       {/* Header */}
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2" style={{ minWidth: 0 }}>
           <PriorityBadge priority={lead.priority} />
           <span style={{ fontSize: 12, color: "var(--text-muted)" }}>#{lead.score}</span>
         </div>
         <div className="flex items-center gap-2">
-          {lead.distanceKm && (
+          {typeof lead.distanceKm === "number" && lead.distanceKm > 0 && (
             <span style={{ fontSize: 11, color: "var(--text-muted)" }}>
               {lead.distanceKm.toFixed(1)} km
             </span>
@@ -72,90 +72,122 @@ export default function LeadCard({ lead, index = 0, onClick }: LeadCardProps) {
       </div>
 
       {/* Business Name & Category */}
-      <div className="mb-3">
-        <h3 style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)", lineHeight: 1.3, marginBottom: 4 }}>
+      <div className="mb-2">
+        <h3 style={{ fontSize: 14, fontWeight: 700, color: "var(--text-primary)", lineHeight: 1.3, marginBottom: 4 }}>
           {lead.name}
         </h3>
-        <span className="tag" style={{ fontSize: 10 }}>{lead.category}</span>
+        <span className="tag" style={{ fontSize: 9, padding: "2px 8px", borderRadius: 4 }}>{lead.category}</span>
       </div>
 
-      {/* Score Bar */}
-      <div className="mb-3">
-        <div className="flex justify-between mb-1">
-          <span style={{ fontSize: 11, color: "var(--text-muted)" }}>Lead Score</span>
-          <span style={{ fontSize: 11, fontWeight: 700, color: lead.priority === "HOT" ? "var(--hot)" : lead.priority === "WARM" ? "var(--warm)" : "var(--cold)" }}>
-            {lead.score}/100
-          </span>
-        </div>
-        <div className="score-bar">
+      {/* Score Bar (Compact) */}
+      <div className="mb-2">
+        <div className="score-bar" style={{ height: 3, background: "rgba(255,255,255,0.05)" }}>
           <div
             className={`score-bar-fill ${scoreBarClass}`}
-            style={{ width: `${lead.score}%` }}
+            style={{ width: `${lead.score}%`, height: "100%" }}
           />
         </div>
       </div>
 
-      {/* Contact Info */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 12 }}>
-        {lead.phone && (
-          <div className="flex items-center gap-2">
-            <Phone size={12} style={{ color: "var(--success)", flexShrink: 0 }} />
-            <span style={{ fontSize: 12, color: "var(--text-secondary)", fontFamily: "monospace" }}>
-              {lead.phone}
-            </span>
-            {lead.phoneConfidence && (
-              <span className={`tag ${lead.phoneConfidence === "HIGH" ? "tag-success" : lead.phoneConfidence === "MEDIUM" ? "tag-warning" : ""}`} style={{ fontSize: 9, padding: "1px 6px" }}>
-                {lead.phoneConfidence}
+      {/* Contact Info (Compact Pill-based Layout) */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 8 }}>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center" }}>
+          {lead.phone ? (
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              background: "rgba(46, 204, 113, 0.05)",
+              border: "1px solid rgba(46, 204, 113, 0.15)",
+              borderRadius: 6,
+              padding: "2px 8px",
+              fontSize: 11
+            }}>
+              <Phone size={10} style={{ color: "var(--success)", flexShrink: 0 }} />
+              <span style={{ fontFamily: "monospace", color: "var(--text-secondary)", fontWeight: 500 }}>
+                {lead.phone}
               </span>
+              {lead.phoneConfidence && (
+                <span className={`tag ${lead.phoneConfidence === "HIGH" ? "tag-success" : "tag-warning"}`} style={{ fontSize: 8, padding: "0 3px", transform: "scale(0.85)", transformOrigin: "left center" }}>
+                  {lead.phoneConfidence}
+                </span>
+              )}
+            </div>
+          ) : (
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              background: "rgba(255,255,255,0.02)",
+              border: "1px solid var(--border)",
+              borderRadius: 6,
+              padding: "2px 8px",
+              fontSize: 11,
+              color: "var(--text-muted)"
+            }}>
+              <Phone size={10} style={{ flexShrink: 0 }} />
+              <span>No phone</span>
+            </div>
+          )}
+          
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            background: lead.hasWebsite ? "rgba(78, 205, 196, 0.05)" : "rgba(255, 71, 87, 0.05)",
+            border: `1px solid ${lead.hasWebsite ? "rgba(78, 205, 196, 0.15)" : "rgba(255, 71, 87, 0.15)"}`,
+            borderRadius: 6,
+            padding: "2px 8px",
+            fontSize: 11
+          }}>
+            <Globe size={10} style={{ color: lead.hasWebsite ? "var(--cold)" : "var(--hot)", flexShrink: 0 }} />
+            {lead.hasWebsite ? (
+              <a href={lead.websiteUrl || "#"} target="_blank" rel="noopener noreferrer" style={{ color: "var(--accent-light)", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 3, fontWeight: 500 }}>
+                Website <ExternalLink size={8} />
+              </a>
+            ) : (
+              <span style={{ color: "var(--hot)", fontWeight: 500 }}>No website</span>
             )}
           </div>
-        )}
-        {!lead.phone && (
-          <div className="flex items-center gap-2">
-            <Phone size={12} style={{ color: "var(--text-muted)", flexShrink: 0 }} />
-            <span style={{ fontSize: 12, color: "var(--text-muted)" }}>No phone found</span>
-          </div>
-        )}
-        <div className="flex items-center gap-2">
-          <Globe size={12} style={{ color: lead.hasWebsite ? "var(--cold)" : "var(--hot)", flexShrink: 0 }} />
-          <span style={{ fontSize: 12, color: lead.hasWebsite ? "var(--text-secondary)" : "var(--hot)" }}>
-            {lead.hasWebsite ? lead.websiteUrl : "No website"}
-          </span>
         </div>
-        <div className="flex items-center gap-2">
-          <MapPin size={12} style={{ color: "var(--text-muted)", flexShrink: 0 }} />
-          <span style={{ fontSize: 12, color: "var(--text-muted)" }} className="truncate">
+
+        {/* Address */}
+        <div className="flex items-start gap-1.5" style={{ fontSize: 11, color: "var(--text-muted)" }}>
+          <MapPin size={11} style={{ marginTop: 2, flexShrink: 0 }} />
+          <span style={{ display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical", overflow: "hidden", textOverflow: "ellipsis" }}>
             {lead.address}
           </span>
         </div>
       </div>
 
-      {/* Rating */}
-      {lead.rating && (
-        <div className="flex items-center gap-3 mb-12">
-          <div className="flex items-center gap-1">
-            <Star size={11} fill="var(--warm)" style={{ color: "var(--warm)" }} />
-            <span style={{ fontSize: 12, fontWeight: 600 }}>{lead.rating}</span>
-          </div>
-          <span style={{ fontSize: 11, color: "var(--text-muted)" }}>
-            {lead.reviewCount?.toLocaleString()} reviews
-          </span>
+      {/* Rating & Newly Opened Tag */}
+      {(lead.rating || lead.isNewlyOpened) && (
+        <div className="flex items-center gap-2" style={{ marginBottom: 8, fontSize: 11 }}>
+          {lead.rating && (
+            <div style={{ display: "flex", alignItems: "center", gap: 4, background: "rgba(255,165,2,0.06)", color: "var(--warm)", border: "1px solid rgba(255,165,2,0.15)", borderRadius: 6, padding: "2px 6px" }}>
+              <Star size={10} fill="var(--warm)" style={{ color: "var(--warm)" }} />
+              <span style={{ fontWeight: 700, fontSize: 10 }}>{lead.rating}</span>
+              <span style={{ color: "var(--text-muted)", fontSize: 10 }}>({lead.reviewCount || 0})</span>
+            </div>
+          )}
           {lead.isNewlyOpened && (
-            <span className="tag tag-info" style={{ fontSize: 10, padding: "1px 8px" }}>🆕 New</span>
+            <span className="tag tag-info" style={{ fontSize: 9, padding: "2px 6px", borderRadius: 6 }}>
+              🆕 Newly Opened
+            </span>
           )}
         </div>
       )}
 
       {/* Pitch */}
-      <div className="pitch-box" style={{ marginTop: 4 }}>
-        <TrendingUp size={11} style={{ display: "inline", marginRight: 6, color: "var(--accent-light)" }} />
-        {lead.pitch}
+      <div className="pitch-box" style={{ marginTop: 2, padding: "8px 12px", fontSize: 12, borderRadius: 8 }}>
+        <TrendingUp size={11} style={{ display: "inline", marginRight: 6, color: "var(--accent-light)", verticalAlign: "middle" }} />
+        <span style={{ verticalAlign: "middle", lineHeight: 1.4 }}>{lead.pitch}</span>
       </div>
 
       {/* View link */}
-      <div className="flex justify-end mt-3">
-        <span style={{ fontSize: 11, color: "var(--accent-light)", display: "flex", alignItems: "center", gap: 4 }}>
-          View details <ExternalLink size={10} />
+      <div className="flex justify-end mt-2">
+        <span style={{ fontSize: 10, color: "var(--accent-light)", display: "flex", alignItems: "center", gap: 3 }}>
+          View details <ExternalLink size={9} />
         </span>
       </div>
     </div>

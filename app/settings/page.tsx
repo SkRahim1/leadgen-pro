@@ -454,16 +454,74 @@ export default function SettingsPage() {
             </button>
 
             {/* Title */}
-            <h3 style={{ fontSize: 20, fontWeight: 800, letterSpacing: "-0.02em", marginBottom: 6 }}>
+            <h3 style={{ fontSize: 22, fontWeight: 800, letterSpacing: "-0.02em", marginBottom: 6 }}>
               Upgrade to {upgradePlan === "STARTER" ? "Starter" : (upgradePlan === "PRO" ? "Pro" : "Business")}
             </h3>
             <div style={{
-              fontSize: 24,
+              fontSize: 26,
               fontWeight: 900,
               color: upgradePlan === "STARTER" ? "var(--cold)" : (upgradePlan === "PRO" ? "var(--accent-light)" : "var(--warm)"),
               marginBottom: 16
             }}>
-              {upgradePlan === "STARTER" ? "₹799/month" : (upgradePlan === "PRO" ? "₹1,999/month" : "₹4,999/month")}
+              {upgradePlan === "STARTER" ? "₹799 / month" : (upgradePlan === "PRO" ? "₹1,999 / month" : "₹4,999 / month")}
+            </div>
+
+            {/* Plan Details Checklist */}
+            <div style={{
+              background: "rgba(255,255,255,0.03)",
+              border: "1px solid var(--border)",
+              borderRadius: 12,
+              padding: "16px",
+              marginBottom: 20,
+              textAlign: "left"
+            }}>
+              <div style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12, borderBottom: "1px solid var(--border)", paddingBottom: 6 }}>
+                💎 Plan Inclusions & Limits
+              </div>
+              <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 8 }}>
+                {upgradePlan === "STARTER" && [
+                  "🚀 1,500 Search Leads/Month (Prospect local businesses)",
+                  "📁 100 Saved Leads (Store in your active CRM)",
+                  "🔄 Full CRM Status Pipeline (New → Contacted → Converted)",
+                  "💬 WhatsApp Direct Integration (Message leads directly)",
+                  "📱 Offline CRM Access (View saved leads offline)",
+                  "❌ No raw CSV/Excel export capability on this tier",
+                  "📞 Standard WhatsApp support (within 24 hours)",
+                ].map((feat, idx) => (
+                  <li key={idx} style={{ fontSize: 12, display: "flex", alignItems: "flex-start", gap: 6, color: feat.startsWith("❌") ? "var(--text-muted)" : "var(--text-secondary)" }}>
+                    <span style={{ flexShrink: 0 }}>{feat.startsWith("❌") ? "❌" : "✓"}</span>
+                    <span>{feat.substring(2)}</span>
+                  </li>
+                ))}
+                {upgradePlan === "PRO" && [
+                  "🚀 7,500 Search Leads/Month (Prospect local businesses)",
+                  "📁 Unlimited Saved Leads (Store in your active CRM)",
+                  "📥 Export up to 1,000 leads/mo to Excel/CSV",
+                  "👤 3 Custom Seller Profiles (Switch presets instantly)",
+                  "📝 WhatsApp Message Templates (Pre-fill pitches)",
+                  "🔄 Full CRM Status Pipeline (New → Contacted → Converted)",
+                  "⭐ Priority WhatsApp Support (Response under 1 hour)",
+                ].map((feat, idx) => (
+                  <li key={idx} style={{ fontSize: 12, display: "flex", alignItems: "flex-start", gap: 6, color: "var(--text-secondary)" }}>
+                    <span style={{ color: "var(--success)", flexShrink: 0 }}>✓</span>
+                    <span>{feat.substring(2)}</span>
+                  </li>
+                ))}
+                {upgradePlan === "BUSINESS" && [
+                  "🚀 15,000 Search Leads/Month (Prospect local businesses)",
+                  "📁 Unlimited Saved Leads (Store in your active CRM)",
+                  "📥 Unlimited CSV/Excel Exports (No download cap)",
+                  "🔑 API Access (Sync leads to external CRMs/Zapier)",
+                  "👥 3 Team Member Slots (Collaborative pipeline)",
+                  "🎛️ Custom Scoring Weights via UI (Tune signals)",
+                  "👑 Dedicated Support Manager (Instantly active)",
+                ].map((feat, idx) => (
+                  <li key={idx} style={{ fontSize: 12, display: "flex", alignItems: "flex-start", gap: 6, color: "var(--text-secondary)" }}>
+                    <span style={{ color: "var(--warm)", flexShrink: 0 }}>✓</span>
+                    <span>{feat.substring(2)}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
 
             {/* QR Code Container */}
@@ -473,7 +531,7 @@ export default function SettingsPage() {
               borderRadius: 12,
               display: "inline-block",
               marginBottom: 16,
-              boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
+              boxShadow: "0 4px 16px rgba(0,0,0,0.15)"
             }}>
               <img
                 src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(
