@@ -5,6 +5,9 @@ import { AppProvider } from "@/lib/context/AppContext"
 export const metadata: Metadata = {
   title: "LeadGen Pro — Universal B2B Lead Generation for India",
   description: "Find hot B2B leads in any Indian city. Search businesses by category, score leads based on your seller profile, and export contact lists instantly.",
+  icons: {
+    icon: "/favicon.png",
+  },
 }
 
 export default function RootLayout({

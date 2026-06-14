@@ -101,7 +101,18 @@ export default function OnboardingPage() {
       <div style={{ width: "100%", maxWidth: 700, position: "relative", zIndex: 1 }}>
         {/* Header */}
         <div style={{ textAlign: "center", marginBottom: 40 }}>
-          <div className="logo-icon" style={{ width: 44, height: 44, borderRadius: 10, fontSize: 22, display: "inline-flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg,#7c4dff,#4ecdc4)", marginBottom: 16 }}>⚡</div>
+          <img
+            src="/leadgenpro_logo.png"
+            alt="LeadGen Pro Logo"
+            style={{
+              width: "44px",
+              height: "44px",
+              objectFit: "contain",
+              borderRadius: "10px",
+              marginBottom: 16,
+              display: "inline-block"
+            }}
+          />
           <h1 style={{ fontSize: 26, fontWeight: 800, letterSpacing: "-0.03em", marginBottom: 6 }}>
             Set Up Your Seller Profile
           </h1>

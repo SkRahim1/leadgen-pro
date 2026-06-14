@@ -167,15 +167,24 @@ export default function LoginPage() {
       }}>
         <div style={{ width: "100%", maxWidth: 420 }}>
            {/* Logo */}
-          <div 
-            style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 32, cursor: "pointer" }}
-            onClick={() => router.push("/")}
-          >
-            <div className="logo-icon" style={{ width: 40, height: 40, borderRadius: 10, fontSize: 20, display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg,#7c4dff,#4ecdc4)" }}>⚡</div>
-            <span style={{ fontSize: 22, fontWeight: 800, letterSpacing: "-0.02em" }}>
-              LeadGen <span style={{ color: "var(--accent-light)" }}>Pro</span>
-            </span>
-          </div>
+           <div 
+             style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 32, cursor: "pointer" }}
+             onClick={() => router.push("/")}
+           >
+             <img
+               src="/leadgenpro_logo.png"
+               alt="LeadGen Pro Logo"
+               style={{
+                 width: "40px",
+                 height: "40px",
+                 objectFit: "contain",
+                 borderRadius: "10px",
+               }}
+             />
+             <span style={{ fontSize: 22, fontWeight: 800, letterSpacing: "-0.02em" }}>
+               LeadGen <span style={{ color: "var(--accent-light)" }}>Pro</span>
+             </span>
+           </div>
 
           <h1 style={{ fontSize: 28, fontWeight: 800, letterSpacing: "-0.03em", marginBottom: 8 }}>
             {mode === "signin" ? "Welcome back" : "Create your account"}

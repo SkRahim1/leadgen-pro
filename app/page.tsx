@@ -55,7 +55,16 @@ export default function LandingPage() {
           style={{ cursor: "pointer" }}
           onClick={() => router.push("/")}
         >
-          <div className="logo-icon">⚡</div>
+          <img
+            src="/leadgenpro_logo.png"
+            alt="LeadGen Pro Logo"
+            style={{
+              width: "32px",
+              height: "32px",
+              objectFit: "contain",
+              borderRadius: "8px",
+            }}
+          />
           <span>
             <span style={{ color: "var(--text-primary)" }}>LeadGen</span>
             <span style={{ color: "var(--accent-light)" }}> Pro</span>
