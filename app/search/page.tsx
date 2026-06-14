@@ -29,6 +29,7 @@ export default function SearchPage() {
   const [filterNoWebsite, setFilterNoWebsite] = useState(false)
   const [sortBy, setSortBy] = useState("score")
   const [showFilters, setShowFilters] = useState(false)
+  const [showMobileSearch, setShowMobileSearch] = useState(false)
   const [hasAutoSearched, setHasAutoSearched] = useState(false)
   const [selectedAreas, setSelectedAreas] = useState<string[]>([])
   const [viewMode, setViewMode] = useState<"grid" | "table">("table")
@@ -167,6 +168,7 @@ export default function SearchPage() {
 
   const handleSearch = async () => {
     if (!query.trim() && industry === "all") return
+    setShowMobileSearch(false)
     runSearch(query, industry, category, sellerProfile?.sellerType || "other")
   }
 
@@ -235,9 +237,23 @@ export default function SearchPage() {
           </div>
         )}
 
+        {/* Mobile Search Toggle Button */}
+        {searched && (
+          <button
+            onClick={() => setShowMobileSearch(!showMobileSearch)}
+            className="btn btn-secondary w-full mobile-only-search-toggle"
+            style={{ marginBottom: 16, justifyContent: "center" }}
+          >
+            {showMobileSearch ? "✕ Hide Search Panel" : "🔍 Modify Search / Areas"}
+          </button>
+        )}
+
         <div className="search-layout" style={{ display: "flex", gap: 24, alignItems: "flex-start" }}>
           {/* Sidebar */}
-          <div className="sidebar" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <div 
+            className={`sidebar ${searched && !showMobileSearch ? "mobile-hidden" : ""}`} 
+            style={{ display: "flex", flexDirection: "column", gap: 16 }}
+          >
             {/* Search Form */}
             <div className="card">
               <h2 style={{ fontSize: 14, fontWeight: 700, marginBottom: 16, color: "var(--text-primary)" }}>
@@ -359,29 +375,7 @@ export default function SearchPage() {
                 </div>
               )}
 
-              {/* Radius */}
-              <label className="label">Search Radius</label>
-              <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 16 }}>
-                {RADIUS_OPTIONS.map(r => (
-                  <button
-                    key={r}
-                    onClick={() => setRadius(r)}
-                    style={{
-                      padding: "5px 10px",
-                      borderRadius: 6,
-                      fontSize: 12,
-                      fontWeight: 600,
-                      border: `1px solid ${radius === r ? "var(--accent)" : "var(--border)"}`,
-                      background: radius === r ? "rgba(124,77,255,0.15)" : "var(--bg-pill)",
-                      color: radius === r ? "var(--accent-light)" : "var(--text-muted)",
-                      cursor: "pointer",
-                      transition: "all 0.15s ease",
-                    }}
-                  >
-                    {r}km
-                  </button>
-                ))}
-              </div>
+
 
               <button
                 id="search-btn"

@@ -1130,3 +1130,17 @@ body.light-theme .bg-glow {
 body.light-theme .bg-glow-2 {
   background: radial-gradient(ellipse, rgba(78, 205, 196, 0.03) 0%, transparent 70%);
 }
+
+/* Mobile Search Panel toggles */
+.mobile-only-search-toggle {
+  display: none !important;
+}
+
+@media (max-width: 768px) {
+  .mobile-only-search-toggle {
+    display: flex !important;
+  }
+  .sidebar.mobile-hidden {
+    display: none !important;
+  }
+}
