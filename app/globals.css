@@ -452,6 +452,28 @@ input, textarea, select {
   background: rgba(124, 77, 255, 0.1);
 }
 
+/* ─── Dashboard Grids ─────────────────────────────────────────────────────── */
+.dashboard-charts-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.dashboard-charts-row > div {
+  min-width: 0;
+}
+
+.dashboard-bottom-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.dashboard-bottom-row > div {
+  min-width: 0;
+}
+
 /* ─── Sidebar (for search page) ──────────────────────────────────────────── */
 .sidebar {
   width: 320px;
@@ -702,6 +724,17 @@ input, textarea, select {
 @media (max-width: 1024px) {
   .grid-4 { grid-template-columns: repeat(2, 1fr); }
   .grid-3 { grid-template-columns: repeat(2, 1fr); }
+  .dashboard-charts-row {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .dashboard-charts-row > div {
+    grid-column: span 1;
+  }
+  .dashboard-bottom-row {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
 }
 
 @media (max-width: 768px) {

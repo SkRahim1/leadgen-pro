@@ -76,7 +76,7 @@ export default function DashboardPage() {
       <div className="bg-glow" />
       <Navbar />
 
-      <div className="container" style={{ maxWidth: 1300, margin: "0 auto", padding: "24px" }}>
+      <div className="container" style={{ maxWidth: 1300, margin: "0 auto", paddingTop: 24, paddingBottom: 24 }}>
 
         {/* Header */}
         <div className="flex items-center justify-between mb-6 dashboard-header">
@@ -145,10 +145,10 @@ export default function DashboardPage() {
             </div>
 
             {/* Charts Row */}
-            <div className="dashboard-charts-row" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, marginBottom: 24 }}>
+            <div className="dashboard-charts-row">
 
               {/* Status Bar Chart */}
-              <div className="card" style={{ gridColumn: "span 2" }}>
+              <div className="card">
                 <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 16 }}>Pipeline Status</h3>
                 <ResponsiveContainer width="100%" height={200}>
                   <BarChart data={statusData} barSize={32}>
@@ -201,7 +201,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Bottom Row */}
-            <div className="dashboard-bottom-row" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+            <div className="dashboard-bottom-row">
 
               {/* Recent Leads */}
               <div className="card">
