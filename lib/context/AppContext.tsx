@@ -6,8 +6,9 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react"
 import { ScoredLead } from "@/types/lead.types"
-import { auth } from "@/lib/firebase/config"
+import { auth, db } from "@/lib/firebase/config"
 import { onAuthStateChanged, signOut } from "firebase/auth"
+import { doc, getDoc, setDoc } from "firebase/firestore"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -112,22 +113,21 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   // Listen to Firebase Auth state changes
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        // Map Firebase user to our UserProfile format
         const profile: UserProfile = {
           id: firebaseUser.uid,
           name: firebaseUser.displayName || firebaseUser.email?.split("@")[0] || "User",
           email: firebaseUser.email || "",
           avatar: firebaseUser.photoURL || undefined,
-          plan: "FREE", // Default plan
+          plan: "FREE",
         }
 
-        // Load user-specific settings from localStorage
+        // 1. Instantly load from localStorage (Offline-first / Fast load)
         const userKey = `${STORAGE_KEY}_${firebaseUser.uid}`
         let userState = {
           sellerProfile: null,
-          savedLeads: [],
+          savedLeads: [] as SavedLead[],
           onboardingComplete: false,
         }
         try {
@@ -142,6 +142,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           }
         } catch (_) {}
 
+        // Set initial state from local storage first
         setState({
           user: profile,
           isLoggedIn: true,
@@ -149,29 +150,70 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           savedLeads: userState.savedLeads,
           onboardingComplete: userState.onboardingComplete,
         })
+        setHydrated(true)
+
+        // 2. Background load from Firestore (Cloud-sync / Device sync)
+        try {
+          const docRef = doc(db, "users", firebaseUser.uid)
+          const docSnap = await getDoc(docRef)
+          if (docSnap.exists()) {
+            const cloudData = docSnap.data()
+            setState(prev => {
+              if (cloudData.onboardingComplete !== undefined) {
+                return {
+                  ...prev,
+                  sellerProfile: cloudData.sellerProfile || null,
+                  savedLeads: cloudData.savedLeads || [],
+                  onboardingComplete: cloudData.onboardingComplete || false,
+                }
+              }
+              return prev
+            })
+            // Update local storage cache
+            localStorage.setItem(userKey, JSON.stringify({
+              sellerProfile: cloudData.sellerProfile || null,
+              savedLeads: cloudData.savedLeads || [],
+              onboardingComplete: cloudData.onboardingComplete || false,
+            }))
+          }
+        } catch (err) {
+          console.warn("[AppContext] Firestore sync-read failed, using offline cache:", err)
+        }
+
       } else {
-        // Logged out
         setState(DEFAULT_STATE)
+        setHydrated(true)
       }
-      setHydrated(true)
     })
 
     return () => unsubscribe()
   }, [])
 
-  // Persist user-specific data to localStorage on changes
+  // Persist user-specific data to localStorage and Firestore on changes
   useEffect(() => {
     if (!hydrated || !state.isLoggedIn || !state.user?.id) return
     
     const userKey = `${STORAGE_KEY}_${state.user.id}`
-    localStorage.setItem(
-      userKey,
-      JSON.stringify({
-        sellerProfile: state.sellerProfile,
-        savedLeads: state.savedLeads,
-        onboardingComplete: state.onboardingComplete,
-      })
-    )
+    const statePayload = {
+      sellerProfile: state.sellerProfile,
+      savedLeads: state.savedLeads,
+      onboardingComplete: state.onboardingComplete,
+    }
+    
+    // Save to local storage
+    localStorage.setItem(userKey, JSON.stringify(statePayload))
+
+    // Save to Firestore (Async, background write)
+    const syncToFirestore = async () => {
+      try {
+        const docRef = doc(db, "users", state.user!.id)
+        await setDoc(docRef, statePayload, { merge: true })
+      } catch (err) {
+        console.warn("[AppContext] Firestore sync-write failed, using offline fallback:", err)
+      }
+    }
+    
+    syncToFirestore()
   }, [
     state.sellerProfile,
     state.savedLeads,

@@ -1,7 +1,7 @@
 "use client"
 
 import { usePathname, useRouter } from "next/navigation"
-import { Search, LayoutDashboard, Settings, LogOut, Zap, User } from "lucide-react"
+import { Search, LayoutDashboard, Settings, LogOut, Zap, User, LayoutList } from "lucide-react"
 import { useApp } from "@/lib/context/AppContext"
 
 export default function Navbar() {
@@ -11,6 +11,7 @@ export default function Navbar() {
 
   const navItems = [
     { href: "/search", label: "Search", icon: Search },
+    { href: "/my-leads", label: "My Leads", icon: LayoutList },
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { href: "/settings", label: "Settings", icon: Settings },
   ]

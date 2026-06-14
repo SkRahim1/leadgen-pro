@@ -203,11 +203,10 @@ export default function DashboardPage() {
             {/* Bottom Row */}
             <div className="dashboard-bottom-row">
 
-              {/* Recent Leads */}
               <div className="card">
                 <div className="flex items-center justify-between mb-4">
                   <h3 style={{ fontSize: 14, fontWeight: 700 }}>Recent Leads</h3>
-                  <Link href="/search" style={{ fontSize: 12, color: "var(--accent-light)" }}>View all →</Link>
+                  <Link href="/my-leads" style={{ fontSize: 12, color: "var(--accent-light)" }}>View all →</Link>
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                   {recentLeads.map(lead => (
