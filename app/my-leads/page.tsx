@@ -362,7 +362,7 @@ export default function MyLeadsPage() {
                     <div style={{
                       display: "grid",
                       gridTemplateColumns: "36px 2fr 1fr 120px 100px 110px 140px 80px 44px",
-                      minWidth: 850,
+                      width: "960px",
                       padding: "10px 16px",
                       background: "var(--bg-well)",
                       borderBottom: "1px solid var(--border)",
@@ -514,7 +514,7 @@ function LeadRow({ lead, selected, onToggle, onStatusChange, onDelete, onNote, i
     <div style={{
       display: "grid",
       gridTemplateColumns: "36px 2fr 1fr 120px 100px 110px 140px 80px 44px",
-      minWidth: 850,
+      width: "960px",
       padding: "12px 16px",
       gap: 12,
       alignItems: "center",
