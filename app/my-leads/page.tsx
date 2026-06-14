@@ -350,7 +350,14 @@ export default function MyLeadsPage() {
               <>
                 {/* ── Table View ── */}
                 {view === "table" && (
-                  <div style={{ border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden", overflowX: "auto" }}>
+                  <div style={{ 
+                    width: "100%", 
+                    maxWidth: "100%", 
+                    overflowX: "auto", 
+                    border: "1px solid var(--border)", 
+                    borderRadius: 12,
+                    background: "var(--table-bg)"
+                  }}>
                     {/* Table header */}
                     <div style={{
                       display: "grid",
