@@ -43,6 +43,13 @@ export default function MyLeadsPage() {
   const [openNotes, setOpenNotes]     = useState<string | null>(null)
   const [noteText, setNoteText]       = useState("")
 
+  // Default to card/grid layout on mobile screens
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.innerWidth <= 768) {
+      setView("grid")
+    }
+  }, [])
+
   useEffect(() => {
     if (!isLoggedIn) router.replace("/login")
     else if (!onboardingComplete) router.replace("/onboarding")
@@ -179,7 +186,7 @@ export default function MyLeadsPage() {
       <div className="bg-glow" />
       <Navbar />
 
-      <div className="container" style={{ maxWidth: 1400, margin: "0 auto", padding: "24px" }}>
+      <div className="container" style={{ maxWidth: 1400, margin: "0 auto", paddingTop: 24, paddingBottom: 24 }}>
 
         {/* ── Header ── */}
         <div className="flex items-center justify-between my-leads-header" style={{ marginBottom: 24 }}>
@@ -195,7 +202,7 @@ export default function MyLeadsPage() {
         </div>
 
         {/* ── Top Stats ── */}
-        <div className="my-leads-stats-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 20 }}>
+        <div className="my-leads-stats-grid">
           {[
             { label: "Total",     value: totalLeads, color: "var(--accent-light)" },
             { label: "🔥 HOT",    value: hotLeads,   color: "var(--hot)" },
@@ -222,7 +229,7 @@ export default function MyLeadsPage() {
         ) : (
           <>
             {/* ── Toolbar ── */}
-            <div className="my-leads-toolbar" style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 16, flexWrap: "wrap" }}>
+            <div className="my-leads-toolbar">
               {/* Search */}
               <div style={{ position: "relative", flex: 1, minWidth: 200 }}>
                 <Search size={13} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "var(--text-muted)" }} />
@@ -249,7 +256,7 @@ export default function MyLeadsPage() {
                 <option value="COLD">🧊 COLD</option>
               </select>
 
-              <div style={{ flex: 1 }} />
+              <div className="my-leads-spacer" style={{ flex: 1 }} />
 
               {/* View toggle */}
               <div style={{ display: "flex", background: "var(--bg-pill)", border: "1px solid var(--border)", borderRadius: 8, overflow: "hidden" }}>
@@ -280,17 +287,7 @@ export default function MyLeadsPage() {
 
             {/* ── Bulk Action Bar (when selection active) ── */}
             {someSelected && (
-              <div className="animate-fade-in" style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 10,
-                padding: "10px 16px",
-                background: "rgba(124,77,255,0.08)",
-                border: "1px solid rgba(124,77,255,0.2)",
-                borderRadius: 10,
-                marginBottom: 12,
-                flexWrap: "wrap",
-              }}>
+              <div className="my-leads-bulk-bar animate-fade-in">
                 <span style={{ fontSize: 12, fontWeight: 700, color: "var(--accent-light)" }}>
                   {selected.size} selected
                 </span>

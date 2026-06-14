@@ -474,6 +474,34 @@ input, textarea, select {
   min-width: 0;
 }
 
+/* ─── My Leads Layout ─────────────────────────────────────────────────────── */
+.my-leads-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.my-leads-toolbar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.my-leads-bulk-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: rgba(124, 77, 255, 0.08);
+  border: 1px solid rgba(124, 77, 255, 0.2);
+  border-radius: 10px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
 /* ─── Sidebar (for search page) ──────────────────────────────────────────── */
 .sidebar {
   width: 320px;
@@ -963,6 +991,16 @@ input, textarea, select {
   .my-leads-toolbar > select, 
   .my-leads-toolbar > button {
     width: 100% !important;
+  }
+
+  .my-leads-spacer {
+    display: none !important;
+  }
+
+  .my-leads-bulk-bar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
   }
 
   /* Lead Details Layout */
