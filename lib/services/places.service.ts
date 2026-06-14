@@ -5,8 +5,8 @@
  * Uses the Places API (New) Text Search endpoint:
  *   POST https://places.googleapis.com/v1/places:searchText
  *
- * Free tier: $200 credit/month ≈ 5,000 Text Search calls/month
- * Field masking is used to minimize billed fields and stay in free tier.
+ * Free tier: $200 credit/month ≈ 5,714 Text Search calls/month (Advanced SKU)
+ * Field masking is used to minimize billed fields — stays in Advanced tier ($0.035/call).
  *
  * Docs: https://developers.google.com/maps/documentation/places/web-service/text-search
  */
@@ -39,8 +39,6 @@ const FIELD_MASK = [
   "places.primaryType",
   "places.types",
   "places.googleMapsUri",
-  "places.regularOpeningHours",
-  "places.currentOpeningHours",
 ].join(",")
 
 // ─── Google Place Type → Our Category Mapping ─────────────────────────────────
@@ -319,8 +317,6 @@ export async function getPlaceDetails(placeId: string): Promise<Business> {
     "primaryType",
     "types",
     "googleMapsUri",
-    "regularOpeningHours",
-    "currentOpeningHours",
   ].join(",")
 
   const url = `https://places.googleapis.com/v1/places/${placeId}`
