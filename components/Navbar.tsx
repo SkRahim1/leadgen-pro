@@ -28,7 +28,7 @@ export default function Navbar() {
       >
         <img
           src="/leadgenpro_logo.png"
-          alt="LeadGen Pro Logo"
+          alt="Renvix LeadFlow Logo"
           style={{
             width: "32px",
             height: "32px",
@@ -37,8 +37,8 @@ export default function Navbar() {
           }}
         />
         <span>
-          <span style={{ color: "var(--text-primary)" }}>LeadGen</span>
-          <span style={{ color: "var(--accent-light)" }}> Pro</span>
+          <span style={{ color: "var(--text-primary)" }}>Renvix</span>
+          <span style={{ color: "var(--accent-light)" }}> LeadFlow</span>
         </span>
       </div>
 

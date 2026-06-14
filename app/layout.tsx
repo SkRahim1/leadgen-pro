@@ -3,8 +3,8 @@ import "./globals.css"
 import { AppProvider } from "@/lib/context/AppContext"
 
 export const metadata: Metadata = {
-  title: "LeadGen Pro — Universal B2B Lead Generation for India",
-  description: "Find hot B2B leads in any Indian city. Search businesses by category, score leads based on your seller profile, and export contact lists instantly.",
+  title: "Renvix LeadFlow — Generate Leads. Manage Customers. Close More Deals.",
+  description: "Find hot B2B leads in any Indian city. Search businesses by category, score leads based on your seller profile, and manage your pipeline to close more deals.",
   icons: {
     icon: "/favicon.png",
   },

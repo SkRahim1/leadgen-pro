@@ -212,7 +212,7 @@ export default function SearchPage() {
     const url = URL.createObjectURL(blob)
     const a = document.createElement("a")
     a.href = url
-    a.download = `leadgen_${query || industry}_${new Date().toISOString().slice(0, 10)}.csv`
+    a.download = `leadflow_${query || industry}_${new Date().toISOString().slice(0, 10)}.csv`
     a.click()
     URL.revokeObjectURL(url)
   }

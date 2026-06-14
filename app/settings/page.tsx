@@ -283,7 +283,7 @@ export default function SettingsPage() {
           {/* Footer branding */}
           <div style={{ textAlign: "center", marginTop: 32, paddingBottom: 16 }}>
             <p style={{ fontSize: 11, color: "var(--text-muted)" }}>
-              LeadGen Pro · A product of <a href="https://renvixteach.in" target="_blank" rel="noopener noreferrer" style={{ color: "var(--accent-light)", textDecoration: "underline" }}>Renvix Technologies</a>
+              Renvix LeadFlow · A product of <a href="https://renvixteach.in" target="_blank" rel="noopener noreferrer" style={{ color: "var(--accent-light)", textDecoration: "underline" }}>Renvix Technologies</a>
             </p>
           </div>
           

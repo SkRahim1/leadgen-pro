@@ -57,7 +57,7 @@ export default function LandingPage() {
         >
           <img
             src="/leadgenpro_logo.png"
-            alt="LeadGen Pro Logo"
+            alt="Renvix LeadFlow Logo"
             style={{
               width: "32px",
               height: "32px",
@@ -66,8 +66,8 @@ export default function LandingPage() {
             }}
           />
           <span>
-            <span style={{ color: "var(--text-primary)" }}>LeadGen</span>
-            <span style={{ color: "var(--accent-light)" }}> Pro</span>
+            <span style={{ color: "var(--text-primary)" }}>Renvix</span>
+            <span style={{ color: "var(--accent-light)" }}> LeadFlow</span>
           </span>
         </div>
         <div className="flex items-center gap-3">
@@ -87,14 +87,14 @@ export default function LandingPage() {
           </div>
 
           <h1 style={{ fontSize: "clamp(36px, 5vw, 64px)", fontWeight: 900, letterSpacing: "-0.04em", lineHeight: 1.1, marginBottom: 24 }}>
-            Find Hot B2B Leads
+            Generate Leads. Manage Customers.
             <br />
-            <span className="text-gradient">in Any Indian City</span>
+            <span className="text-gradient">Close More Deals.</span>
           </h1>
 
           <p style={{ fontSize: "clamp(16px, 2vw, 20px)", color: "var(--text-secondary)", lineHeight: 1.7, maxWidth: 600, margin: "0 auto 40px" }}>
-            The universal B2B prospecting tool for every seller — developers, insurance agents, 
-            loan DSAs, equipment suppliers, CAs, and 50 more types. Search, score, pitch, export.
+            Renvix LeadFlow is the universal B2B prospecting and customer pipeline tool for every seller — 
+            developers, insurance agents, loan DSAs, equipment suppliers, CAs, and 50 more types. Search, score, pitch, export.
           </p>
 
           <div className="flex justify-center gap-3" style={{ flexWrap: "wrap" }}>
@@ -212,7 +212,7 @@ export default function LandingPage() {
             Start Finding Leads <span className="text-gradient">Today</span>
           </h2>
           <p style={{ color: "var(--text-secondary)", marginBottom: 32, fontSize: 16 }}>
-            Join thousands of Indian B2B sellers who use LeadGen Pro to fill their pipeline every day.
+            Join thousands of Indian B2B sellers who use Renvix LeadFlow to fill their pipeline every day.
           </p>
           <a href="/login" className="btn btn-primary btn-lg">
             🚀 Get Started — Free Forever Plan Available
@@ -223,7 +223,7 @@ export default function LandingPage() {
       {/* Footer */}
       <footer style={{ borderTop: "1px solid var(--border)", padding: "24px", textAlign: "center", position: "relative", zIndex: 1 }}>
         <p style={{ fontSize: 12, color: "var(--text-muted)" }}>
-          © 2026 LeadGen Pro. A product of <a href="https://renvixteach.in" target="_blank" rel="noopener noreferrer" style={{ color: "var(--accent-light)", textDecoration: "underline" }}>Renvix Technologies</a> · Made for India's B2B sellers 🇮🇳
+          © 2026 Renvix LeadFlow. A product of <a href="https://renvixteach.in" target="_blank" rel="noopener noreferrer" style={{ color: "var(--accent-light)", textDecoration: "underline" }}>Renvix Technologies</a> · Made for India's B2B sellers 🇮🇳
         </p>
       </footer>
     </div>

@@ -103,7 +103,7 @@ export default function OnboardingPage() {
         <div style={{ textAlign: "center", marginBottom: 40 }}>
           <img
             src="/leadgenpro_logo.png"
-            alt="LeadGen Pro Logo"
+            alt="Renvix LeadFlow Logo"
             style={{
               width: "44px",
               height: "44px",

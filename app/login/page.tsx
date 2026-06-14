@@ -173,7 +173,7 @@ export default function LoginPage() {
            >
              <img
                src="/leadgenpro_logo.png"
-               alt="LeadGen Pro Logo"
+               alt="Renvix LeadFlow Logo"
                style={{
                  width: "40px",
                  height: "40px",
@@ -182,7 +182,7 @@ export default function LoginPage() {
                }}
              />
              <span style={{ fontSize: 22, fontWeight: 800, letterSpacing: "-0.02em" }}>
-               LeadGen <span style={{ color: "var(--accent-light)" }}>Pro</span>
+               Renvix <span style={{ color: "var(--accent-light)" }}>LeadFlow</span>
              </span>
            </div>
 
@@ -385,7 +385,7 @@ export default function LoginPage() {
 
           {/* Toggle Form Mode */}
           <p style={{ fontSize: 13, color: "var(--text-secondary)", textAlign: "center", marginBottom: 24 }}>
-            {mode === "signin" ? "New to LeadGen Pro?" : "Already have an account?"}{" "}
+            {mode === "signin" ? "New to Renvix LeadFlow?" : "Already have an account?"}{" "}
             <button
               type="button"
               onClick={() => {
