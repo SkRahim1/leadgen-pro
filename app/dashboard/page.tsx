@@ -1,16 +1,18 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useApp } from "@/lib/context/AppContext"
 import Navbar from "@/components/Navbar"
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts"
-import { TrendingUp, Flame, Star, ThumbsUp, Download, Zap } from "lucide-react"
+import { TrendingUp, Flame, Star, ThumbsUp, Download, Zap, Loader2 } from "lucide-react"
 import Link from "next/link"
 
 export default function DashboardPage() {
-  const { savedLeads, sellerProfile, isLoggedIn, onboardingComplete, user, syncComplete } = useApp()
+  const { savedLeads, sellerProfile, isLoggedIn, onboardingComplete, user, syncComplete, importWebDevLeads } = useApp()
   const router = useRouter()
+  const [importing, setImporting] = useState(false)
+  const [importSuccess, setImportSuccess] = useState<string | null>(null)
 
   useEffect(() => {
     if (!isLoggedIn) {
@@ -100,6 +102,91 @@ export default function DashboardPage() {
             </Link>
           </div>
         </div>
+
+        {/* Telecalling Campaign Seeding Banner */}
+        {syncComplete && isLoggedIn && (
+          <div 
+            style={{ 
+              background: "linear-gradient(135deg, rgba(124, 77, 255, 0.12) 0%, rgba(98, 0, 234, 0.06) 100%)",
+              border: "1px solid rgba(124, 77, 255, 0.25)",
+              borderRadius: 16,
+              padding: "16px 24px",
+              marginBottom: 24,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 20,
+              flexWrap: "wrap",
+              boxShadow: "0 4px 24px rgba(124, 77, 255, 0.05)"
+            }}
+          >
+            <div style={{ flex: 1, minWidth: 280 }}>
+              <div className="flex items-center gap-2" style={{ display: "flex", alignItems: "center" }}>
+                <span style={{ fontSize: 18, marginRight: 6 }}>📞</span>
+                <h3 style={{ fontSize: 15, fontWeight: 800, color: "var(--accent-light)", margin: 0 }}>
+                  Telecalling Campaign: Seed 500 Real B2B Leads
+                </h3>
+                <span className="badge-hot" style={{ fontSize: 9, padding: "2px 6px", marginLeft: 10, display: "inline-block" }}>CAMPAIGN ACTIVE</span>
+              </div>
+            </div>
+            
+            <div style={{ display: "flex", flexDirection: "column", gap: 8, alignItems: "flex-end" }}>
+              {importSuccess ? (
+                <div style={{ display: "flex", alignItems: "center", gap: 6, color: "var(--success)", fontSize: 13, fontWeight: 700 }}>
+                  <span>✓</span> {importSuccess}
+                </div>
+              ) : (
+                <button 
+                  className="btn btn-primary"
+                  disabled={importing}
+                  onClick={async () => {
+                    setImporting(true)
+                    try {
+                      const res = await fetch('/api/import-leads')
+                      const data = await res.json()
+                      if (data.leads && data.leads.length > 0) {
+                        importWebDevLeads(data.leads)
+                        setImportSuccess(`Successfully imported ${data.leads.length} real B2B leads!`)
+                      } else {
+                        alert("No leads found or error occurred while importing.")
+                      }
+                    } catch (err) {
+                      console.error("Error importing leads:", err)
+                      alert("Failed to import leads. Please try again.")
+                    } finally {
+                      setImporting(false)
+                    }
+                  }}
+                  style={{ 
+                    padding: "10px 20px", 
+                    borderRadius: 10,
+                    fontWeight: 700,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    background: "var(--accent)",
+                    borderColor: "var(--accent)",
+                    cursor: importing ? "wait" : "pointer"
+                  }}
+                >
+                  {importing ? (
+                    <>
+                      <Loader2 size={14} className="spin" style={{ animation: "spin 0.8s linear infinite" }} />
+                      Crawling Listings...
+                    </>
+                  ) : (
+                    <>
+                      <span>⚡</span> Load 500 Real Leads
+                    </>
+                  )}
+                </button>
+              )}
+              <div style={{ fontSize: 10, color: "var(--text-muted)" }}>
+                Crawls Sulekha in parallel · No local command execution required
+              </div>
+            </div>
+          </div>
+        )}
 
         {total === 0 ? (
           // Empty State

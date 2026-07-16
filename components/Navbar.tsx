@@ -1,6 +1,7 @@
 "use client"
 
 import { usePathname, useRouter } from "next/navigation"
+import Link from "next/link"
 import { Search, LayoutDashboard, Settings, LogOut, Zap, User, LayoutList } from "lucide-react"
 import { useApp } from "@/lib/context/AppContext"
 
@@ -47,7 +48,7 @@ export default function Navbar() {
         <div className="desktop-nav">
           <div className="navbar-nav" style={{ position: "absolute", left: "50%", transform: "translateX(-50%)" }}>
             {navItems.map(({ href, label, icon: Icon }) => (
-              <a
+              <Link
                 key={href}
                 href={href}
                 className={`nav-link ${pathname.startsWith(href) ? "active" : ""}`}
@@ -68,7 +69,7 @@ export default function Navbar() {
                     {hotCount}
                   </span>
                 )}
-              </a>
+              </Link>
             ))}
           </div>
         </div>
@@ -116,7 +117,7 @@ export default function Navbar() {
       {/* Mobile Bottom Navigation */}
       <div className="mobile-bottom-nav">
         {navItems.map(({ href, label, icon: Icon }) => (
-          <a
+          <Link
             key={href}
             href={href}
             className={`mobile-nav-link ${pathname.startsWith(href) ? "active" : ""}`}
@@ -140,7 +141,7 @@ export default function Navbar() {
                 {hotCount}
               </span>
             )}
-          </a>
+          </Link>
         ))}
       </div>
     </>

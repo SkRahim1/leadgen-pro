@@ -27,11 +27,12 @@ export async function GET(req: NextRequest) {
   const areasRaw = searchParams.get("areas") || ""
   const areas = areasRaw ? areasRaw.split(",").filter(Boolean) : []
 
+  const provider = (searchParams.get("searchProvider") || "osm") as "google" | "osm"
   const apiKey = process.env.GOOGLE_PLACES_API_KEY
 
-  if (apiKey) {
+  if (provider === "osm" || apiKey) {
     try {
-      // 1. Construct base query for Google Places
+      // 1. Construct base query for Google Places / OSM
       let searchQuery = q.trim()
 
       if (!searchQuery) {
@@ -52,8 +53,8 @@ export async function GET(req: NextRequest) {
         searchQuery = searchQuery.slice(0, searchQuery.length - ` in ${city}`.length).trim()
       }
 
-      // Check cache first
-      const cacheKey = `${searchQuery}|${city}|${areas.sort().join(",")}`.toLowerCase()
+      // Check cache first (partitioned by search provider)
+      const cacheKey = `${searchQuery}|${city}|${areas.sort().join(",")}|${provider}`.toLowerCase()
       const cached = getCachedSearch(cacheKey)
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -64,16 +65,16 @@ export async function GET(req: NextRequest) {
       } else {
         const seenPlaceIds = new Set<string>()
 
-        // 2. Fetch from Google Places API
+        // 2. Fetch from Google Places API or OpenStreetMap Crawler
         if (areas.length > 0) {
-          console.log(`[Search API] Routing to Multi-Area Search for: "${searchQuery}" in areas: [${areas.join(", ")}] of ${city}`)
+          console.log(`[Search API] Routing to Multi-Area Search (${provider}) for: "${searchQuery}" in areas: [${areas.join(", ")}] of ${city}`)
 
           // Fetch up to 30 results per area in parallel to compile a comprehensive list
           const searchPromises = areas.map(async (area) => {
             const areaQuery = `${searchQuery} in ${area}, ${city}`
             try {
-              console.log(`[Search API] Fetching from Google Places for area query: "${areaQuery}"`)
-              const res = await searchPlacesByText(areaQuery, 30)
+              console.log(`[Search API] Fetching from ${provider} for area query: "${areaQuery}"`)
+              const res = await searchPlacesByText(areaQuery, 30, provider)
               return res.businesses
             } catch (e) {
               console.error(`[Search API] Fetching failed for area "${areaQuery}":`, e)
@@ -96,8 +97,8 @@ export async function GET(req: NextRequest) {
           if (city && !searchQuery.toLowerCase().includes(city.toLowerCase())) {
             cityQuery = `${searchQuery} in ${city}`
           }
-          console.log(`[Search API] Fetching from Google Places for city query: "${cityQuery}"`)
-          const res = await searchPlacesByText(cityQuery, 60)
+          console.log(`[Search API] Fetching from ${provider} for city query: "${cityQuery}"`)
+          const res = await searchPlacesByText(cityQuery, 60, provider)
           uniqueBusinesses = res.businesses
         }
 
@@ -127,7 +128,7 @@ export async function GET(req: NextRequest) {
         mode: "live",
       })
     } catch (error: any) {
-      console.error("[Search API] Live Places API failed, falling back to mock data:", error)
+      console.error(`[Search API] Live Search API (${provider}) failed, falling back to mock data:`, error)
     }
   }
 

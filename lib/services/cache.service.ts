@@ -62,3 +62,26 @@ export function setCachedSearch(key: string, businesses: Business[]): void {
     console.error("[Cache Service] Error writing cache file:", e)
   }
 }
+
+/**
+ * Searches all cached search results for a business with a matching placeId.
+ */
+export function findBusinessInCache(placeId: string): Business | null {
+  try {
+    ensureCacheDir()
+    if (!fs.existsSync(CACHE_FILE)) return null
+
+    const fileContent = fs.readFileSync(CACHE_FILE, "utf-8")
+    const cacheMap: Record<string, CacheEntry> = JSON.parse(fileContent || "{}")
+
+    for (const key of Object.keys(cacheMap)) {
+      const entry = cacheMap[key]
+      const found = entry.businesses.find(b => b.placeId === placeId)
+      if (found) return found
+    }
+  } catch (e) {
+    console.error("[Cache Service] Error searching cache for business:", e)
+  }
+  return null
+}
+

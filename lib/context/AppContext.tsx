@@ -11,6 +11,7 @@ import { onAuthStateChanged, signOut } from "firebase/auth"
 import { doc, getDoc, setDoc } from "firebase/firestore"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
+export type SearchProvider = "google" | "osm"
 
 export interface UserProfile {
   id: string
@@ -58,6 +59,8 @@ export interface AppState {
 interface AppContextValue extends AppState {
   theme: "light" | "dark"
   setTheme: (theme: "light" | "dark") => void
+  searchProvider: SearchProvider
+  setSearchProvider: (provider: SearchProvider) => void
   login: (user: UserProfile) => void
   logout: () => void
   saveSellerProfile: (profile: SellerProfile) => void
@@ -67,6 +70,7 @@ interface AppContextValue extends AppState {
   updateLeadNotes: (placeId: string, notes: string) => void
   isLeadSaved: (placeId: string) => boolean
   syncComplete: boolean
+  importWebDevLeads: (leadsList: ScoredLead[]) => void
 }
 
 const AppContext = createContext<AppContextValue | null>(null)
@@ -85,14 +89,19 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<AppState>(DEFAULT_STATE)
   const [hydrated, setHydrated] = useState(false)
   const [theme, setThemeState] = useState<"light" | "dark">("dark")
+  const [searchProvider, setSearchProviderState] = useState<SearchProvider>("osm")
   const [syncComplete, setSyncComplete] = useState(false)
 
-  // Load theme preference on mount
+  // Load theme and search provider preference on mount
   useEffect(() => {
     try {
       const savedTheme = localStorage.getItem("leadgen_pro_theme") as "light" | "dark"
       if (savedTheme === "light" || savedTheme === "dark") {
         setThemeState(savedTheme)
+      }
+      const savedProvider = localStorage.getItem("leadgen_pro_search_provider") as SearchProvider
+      if (savedProvider === "google" || savedProvider === "osm") {
+        setSearchProviderState(savedProvider)
       }
     } catch (_) {}
   }, [])
@@ -111,6 +120,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const setTheme = useCallback((newTheme: "light" | "dark") => {
     setThemeState(newTheme)
+  }, [])
+
+  const setSearchProvider = useCallback((newProvider: SearchProvider) => {
+    setSearchProviderState(newProvider)
+    try {
+      localStorage.setItem("leadgen_pro_search_provider", newProvider)
+    } catch (_) {}
   }, [])
 
   // Listen to Firebase Auth state changes
@@ -160,24 +176,55 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         try {
           const docRef = doc(db, "users", firebaseUser.uid)
           const docSnap = await getDoc(docRef)
+          
+          // Fetch shared campaign leads in parallel
+          const sharedDocRef = doc(db, "campaign", "leads")
+          const sharedDocSnap = await getDoc(sharedDocRef)
+          let sharedLeads: SavedLead[] = []
+          if (sharedDocSnap.exists()) {
+            sharedLeads = sharedDocSnap.data().savedLeads || []
+          }
+
           if (docSnap.exists()) {
             const cloudData = docSnap.data()
+            const userLeads = cloudData.savedLeads || []
+            
+            // Merge userLeads and sharedLeads, avoiding duplicates by placeId
+            const mergedLeads = [...userLeads]
+            sharedLeads.forEach(sl => {
+              if (!mergedLeads.some(ul => ul.placeId === sl.placeId)) {
+                mergedLeads.push(sl)
+              }
+            })
+
             setState(prev => {
               const updatedUser = prev.user ? { ...prev.user, plan: cloudData.plan || "FREE" } : null
               return {
                 ...prev,
                 user: updatedUser,
                 sellerProfile: cloudData.sellerProfile || null,
-                savedLeads: cloudData.savedLeads || [],
+                savedLeads: mergedLeads,
                 onboardingComplete: cloudData.onboardingComplete || false,
               }
             })
             // Update local storage cache
             localStorage.setItem(userKey, JSON.stringify({
               sellerProfile: cloudData.sellerProfile || null,
-              savedLeads: cloudData.savedLeads || [],
+              savedLeads: mergedLeads,
               onboardingComplete: cloudData.onboardingComplete || false,
               plan: cloudData.plan || "FREE",
+            }))
+          } else if (sharedLeads.length > 0) {
+            // New user, populate with shared campaign leads
+            setState(prev => ({
+              ...prev,
+              savedLeads: sharedLeads
+            }))
+            localStorage.setItem(userKey, JSON.stringify({
+              sellerProfile: null,
+              savedLeads: sharedLeads,
+              onboardingComplete: false,
+              plan: "FREE",
             }))
           }
         } catch (err) {
@@ -266,6 +313,59 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     })
   }, [])
 
+  const importWebDevLeads = useCallback((leadsList: ScoredLead[]) => {
+    setState(prev => {
+      const newLeads = [...prev.savedLeads]
+      let addedCount = 0
+      leadsList.forEach(lead => {
+        const exists = newLeads.some(l => l.placeId === lead.placeId)
+        if (!exists) {
+          newLeads.push({
+            ...lead,
+            savedAt: new Date().toISOString(),
+            status: "NEW",
+            notes: "",
+          })
+          addedCount++
+        }
+      })
+      console.log(`[AppContext] Imported ${addedCount} real B2B leads locally.`)
+
+      // Write to shared campaign document in Firestore so all accounts can access them!
+      const syncShared = async () => {
+        try {
+          const sharedDocRef = doc(db, "campaign", "leads")
+          const sharedSnap = await getDoc(sharedDocRef)
+          let existingShared: SavedLead[] = []
+          if (sharedSnap.exists()) {
+            existingShared = sharedSnap.data().savedLeads || []
+          }
+          
+          const updatedShared = [...existingShared]
+          leadsList.forEach(lead => {
+            const exists = updatedShared.some(l => l.placeId === lead.placeId)
+            if (!exists) {
+              updatedShared.push({
+                ...lead,
+                savedAt: new Date().toISOString(),
+                status: "NEW",
+                notes: "",
+              })
+            }
+          })
+          
+          await setDoc(sharedDocRef, { savedLeads: updatedShared }, { merge: true })
+          console.log(`[AppContext] Synced ${leadsList.length} leads to shared campaign database.`)
+        } catch (err) {
+          console.warn("[AppContext] Shared campaign write failed:", err)
+        }
+      }
+      syncShared()
+
+      return { ...prev, savedLeads: newLeads }
+    })
+  }, [])
+
   const removeLead = useCallback((placeId: string) => {
     setState(prev => ({
       ...prev,
@@ -302,6 +402,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       ...state,
       theme,
       setTheme,
+      searchProvider,
+      setSearchProvider,
       login,
       logout,
       saveSellerProfile,
@@ -311,6 +413,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       updateLeadNotes,
       isLeadSaved,
       syncComplete,
+      importWebDevLeads,
     }}>
       {children}
     </AppContext.Provider>

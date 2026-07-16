@@ -19,17 +19,18 @@ export async function GET(
       return NextResponse.json({ lead: mockLead, source: "mock" })
     }
 
-    // 2. If not in mock data and Places API key is set, fetch from Google Places API
+    // 2. If not in mock data, fetch from Places service (Google or OpenStreetMap)
+    const provider = (searchParams.get("searchProvider") || "osm") as "google" | "osm"
     const apiKey = process.env.GOOGLE_PLACES_API_KEY
-    if (apiKey) {
-      console.log(`[Lead Details API] Fetching from Google Places for ID: ${id}`)
+    if (provider === "osm" || id.startsWith("osm_") || apiKey) {
+      console.log(`[Lead Details API] Fetching from service (${provider}) for ID: ${id}`)
       try {
-        const business = await getPlaceDetails(id)
+        const business = await getPlaceDetails(id, provider)
         const { score, priority, reasons, pitch } = calculateLeadScore(business, sellerType)
         const scoredLead = { ...business, score, priority, reasons, pitch }
-        return NextResponse.json({ lead: scoredLead, source: "google_places" })
+        return NextResponse.json({ lead: scoredLead, source: id.startsWith("osm_") || provider === "osm" ? "osm" : "google_places" })
       } catch (err) {
-        console.error(`[Lead Details API] Google Places Details call failed for ID: ${id}`, err)
+        console.error(`[Lead Details API] Places Details call failed for ID: ${id} using provider ${provider}`, err)
       }
     }
 

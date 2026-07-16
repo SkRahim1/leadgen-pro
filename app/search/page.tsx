@@ -14,7 +14,7 @@ import { Search, MapPin, Filter, SlidersHorizontal, Download, Loader2, X, Chevro
 const RADIUS_OPTIONS = [1, 2, 5, 10, 25, 50]
 
 export default function SearchPage() {
-  const { user, sellerProfile, isLoggedIn, onboardingComplete, saveLead, removeLead, isLeadSaved, syncComplete } = useApp()
+  const { user, sellerProfile, isLoggedIn, onboardingComplete, saveLead, removeLead, isLeadSaved, syncComplete, searchProvider } = useApp()
   const router = useRouter()
 
   const [query, setQuery] = useState("")
@@ -37,9 +37,26 @@ export default function SearchPage() {
   const [mounted, setMounted] = useState(false)
 
   // Dynamically detect city from query input to show relevant areas
-  const queryCity = Object.keys(CITY_AREAS).find(c => 
-    query.toLowerCase().includes(c.toLowerCase())
-  )
+  const getDetectedCity = (q: string) => {
+    const qLower = q.toLowerCase()
+    const found = Object.keys(CITY_AREAS).find(c => qLower.includes(c.toLowerCase()))
+    if (found) return found
+
+    if (qLower.includes("banglore") || qLower.includes("blr")) return "Bangalore"
+    if (qLower.includes("bombay") || qLower.includes("mumbay")) return "Mumbai"
+    if (qLower.includes("hydrabad") || qLower.includes("hyd")) return "Hyderabad"
+    if (qLower.includes("calcutta")) return "Kolkata"
+    if (qLower.includes("madras")) return "Chennai"
+
+    const match = q.match(/\s+in\s+([a-zA-Z\s]+)$/i) || q.match(/\s+near\s+([a-zA-Z\s]+)$/i)
+    if (match) {
+      const parsedCity = match[1].trim()
+      return parsedCity.charAt(0).toUpperCase() + parsedCity.slice(1)
+    }
+    return null
+  }
+
+  const queryCity = getDetectedCity(query)
   const currentCity = queryCity || sellerProfile?.targetCity || "Hyderabad"
   const cityAreas = CITY_AREAS[currentCity] || []
 
@@ -155,6 +172,7 @@ export default function SearchPage() {
         targetTypes: (sellerProfile?.targetTypes || []).join(","),
         city: currentCity,
         areas: areasToSearch.join(","),
+        searchProvider: searchProvider || "osm",
       })
       const res = await fetch(`/api/search?${params}`)
       const data = await res.json()

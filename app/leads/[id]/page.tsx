@@ -23,7 +23,7 @@ const STATUS_OPTIONS = [
 export default function LeadDetailPage() {
   const params = useParams()
   const router = useRouter()
-  const { savedLeads, sellerProfile, saveLead, removeLead, updateLeadStatus, updateLeadNotes, isLeadSaved, isLoggedIn } = useApp()
+  const { savedLeads, sellerProfile, saveLead, removeLead, updateLeadStatus, updateLeadNotes, isLeadSaved, isLoggedIn, searchProvider } = useApp()
   const placeId = params.id as string
 
   useEffect(() => {
@@ -53,7 +53,7 @@ export default function LeadDetailPage() {
     const fetchLead = async () => {
       setLoading(true)
       try {
-        const res = await fetch(`/api/leads/${placeId}?sellerType=${sellerProfile?.sellerType || "other"}`)
+        const res = await fetch(`/api/leads/${placeId}?sellerType=${sellerProfile?.sellerType || "other"}&searchProvider=${searchProvider || "osm"}`)
         if (!res.ok) throw new Error("Failed to fetch lead")
         const data = await res.json()
         if (active && data.lead) {
@@ -140,8 +140,15 @@ export default function LeadDetailPage() {
     }
   }
 
+  const cleanPhoneForWA = (phone: string) => {
+    let digits = phone.replace(/\D/g, "")
+    if (digits.startsWith("91") && digits.length === 12) return digits
+    if (digits.startsWith("0")) digits = digits.substring(1)
+    return `91${digits}`
+  }
+
   const whatsappUrl = lead.phone
-    ? `https://wa.me/91${lead.phone.replace(/\D/g, "")}?text=${encodeURIComponent(lead.pitch)}`
+    ? `https://wa.me/${cleanPhoneForWA(lead.phone)}?text=${encodeURIComponent(lead.pitch)}`
     : null
 
   return (

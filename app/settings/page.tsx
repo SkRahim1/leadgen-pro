@@ -9,7 +9,7 @@ import { SELLER_TYPES } from "@/lib/data/sellerTypes"
 import { Save, CheckCircle2, Trash2, User, Zap, ChevronRight, X } from "lucide-react"
 
 export default function SettingsPage() {
-  const { user, sellerProfile, saveSellerProfile, logout, savedLeads, isLoggedIn, onboardingComplete, theme, setTheme, syncComplete } = useApp()
+  const { user, sellerProfile, saveSellerProfile, logout, savedLeads, isLoggedIn, onboardingComplete, theme, setTheme, searchProvider, setSearchProvider, syncComplete } = useApp()
   const router = useRouter()
   const [saved, setSaved] = useState(false)
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
@@ -157,6 +157,75 @@ export default function SettingsPage() {
               >
                 <span style={{ fontSize: 20 }}>☀️</span>
                 <span style={{ fontSize: 13, fontWeight: 600 }}>Light Mode</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Search Provider Selector Card */}
+          <div className="card animate-scale-in">
+            <h2 style={{ fontSize: 14, fontWeight: 700, marginBottom: 4 }}>
+              🔍 Search Provider
+            </h2>
+            <p style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 16 }}>
+              Select the search engine to query when prospecting local business leads.
+            </p>
+            <div className="provider-grid">
+              <button
+                type="button"
+                onClick={() => setSearchProvider("osm")}
+                style={{
+                  padding: "16px",
+                  borderRadius: 12,
+                  background: searchProvider === "osm" ? "rgba(124, 77, 255, 0.12)" : "rgba(255, 255, 255, 0.03)",
+                  border: `1px solid ${searchProvider === "osm" ? "rgba(124, 77, 255, 0.5)" : "var(--border)"}`,
+                  color: "var(--text-primary)",
+                  cursor: "pointer",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "flex-start",
+                  gap: 6,
+                  transition: "all 0.2s",
+                  textAlign: "left",
+                  width: "100%"
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 8, width: "100%" }}>
+                  <span style={{ fontSize: 18 }}>🌐</span>
+                  <span style={{ fontSize: 13, fontWeight: 700 }}>LeadFlow Instant Search (Default)</span>
+                  {searchProvider === "osm" && <span className="tag tag-info" style={{ marginLeft: "auto", fontSize: 9, padding: "2px 6px" }}>Active</span>}
+                </div>
+                <span style={{ fontSize: 11, color: "var(--text-muted)" }}>
+                  Our proprietary search engine optimized for rapid local business prospecting.
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setSearchProvider("google")}
+                style={{
+                  padding: "16px",
+                  borderRadius: 12,
+                  background: searchProvider === "google" ? "rgba(124, 77, 255, 0.12)" : "rgba(255, 255, 255, 0.03)",
+                  border: `1px solid ${searchProvider === "google" ? "rgba(124, 77, 255, 0.5)" : "var(--border)"}`,
+                  color: "var(--text-primary)",
+                  cursor: "pointer",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "flex-start",
+                  gap: 6,
+                  transition: "all 0.2s",
+                  textAlign: "left",
+                  width: "100%"
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 8, width: "100%" }}>
+                  <span style={{ fontSize: 18 }}>📍</span>
+                  <span style={{ fontSize: 13, fontWeight: 700 }}>Premium Verified Search</span>
+                  {searchProvider === "google" && <span className="tag tag-info" style={{ marginLeft: "auto", fontSize: 9, padding: "2px 6px" }}>Active</span>}
+                </div>
+                <span style={{ fontSize: 11, color: "var(--text-muted)" }}>
+                  An advanced global search layer utilizing premium geographical mapping coordinates.
+                </span>
               </button>
             </div>
           </div>

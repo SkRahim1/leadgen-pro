@@ -29,6 +29,13 @@ const PRIORITY_COLORS: Record<string, string> = {
 type ViewMode = "table" | "grid"
 type SortKey = "savedAt" | "score" | "name" | "status" | "priority"
 
+const cleanPhoneForWA = (phone: string) => {
+  let digits = phone.replace(/\D/g, "")
+  if (digits.startsWith("91") && digits.length === 12) return digits
+  if (digits.startsWith("0")) digits = digits.substring(1)
+  return `91${digits}`
+}
+
 export default function MyLeadsPage() {
   const { savedLeads, removeLead, updateLeadStatus, updateLeadNotes, isLoggedIn, onboardingComplete, syncComplete, user } = useApp()
   const router = useRouter()
@@ -147,8 +154,7 @@ export default function MyLeadsPage() {
 
     // Open first 5 in new tabs (browser allows max 5 popups)
     withPhone.slice(0, 5).forEach(l => {
-      const num = l.phone!.replace(/\D/g, "")
-      const url = `https://wa.me/91${num}?text=${encodeURIComponent(l.pitch)}`
+      const url = `https://wa.me/${cleanPhoneForWA(l.phone!)}?text=${encodeURIComponent(l.pitch)}`
       window.open(url, "_blank")
     })
 
@@ -497,7 +503,7 @@ function LeadRow({ lead, selected, onToggle, onStatusChange, onDelete, onNote, i
   const statusInfo = STATUS_OPTIONS.find(s => s.value === lead.status)
 
   const whatsappUrl = lead.phone
-    ? `https://wa.me/91${lead.phone.replace(/\D/g, "")}?text=${encodeURIComponent(lead.pitch)}`
+    ? `https://wa.me/${cleanPhoneForWA(lead.phone)}?text=${encodeURIComponent(lead.pitch)}`
     : null
 
   return (
@@ -808,7 +814,7 @@ function LeadGridCard({ lead, selected, onToggle, onStatusChange, onDelete }: {
   const priorityColor = PRIORITY_COLORS[lead.priority]
 
   const whatsappUrl = lead.phone
-    ? `https://wa.me/91${lead.phone.replace(/\D/g, "")}?text=${encodeURIComponent(lead.pitch)}`
+    ? `https://wa.me/${cleanPhoneForWA(lead.phone)}?text=${encodeURIComponent(lead.pitch)}`
     : null
 
   return (
