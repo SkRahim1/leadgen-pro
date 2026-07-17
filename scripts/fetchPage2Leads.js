@@ -3,42 +3,54 @@ const path = require('path');
 
 const cities = [
   'hyderabad', 'bangalore', 'mumbai', 'pune', 'delhi', 'chennai',
-  'kolkata', 'ahmedabad', 'jaipur', 'lucknow', 'surat', 'coimbatore',
-  'patna', 'indore', 'bhopal', 'nagpur', 'vadodara', 'ludhiana', 'kochi', 'visakhapatnam', 'kanpur', 'mysore'
+  'kolkata', 'ahmedabad', 'jaipur', 'lucknow'
 ];
 const categories = [
   { key: 'dentists', name: 'Dental Clinic', industry: 'healthcare' },
-  { key: 'gyms', name: 'Gym', industry: 'fitness' },
   { key: 'chartered-accountants', name: 'Chartered Accountant', industry: 'financial' },
-  { key: 'schools', name: 'School', industry: 'education' },
   { key: 'catering-services', name: 'Catering Service', industry: 'food' },
   { key: 'wedding-photographers', name: 'Wedding Photographer', industry: 'marketing' },
-  { key: 'pest-control-services', name: 'Pest Control', industry: 'services' },
-  { key: 'car-rentals', name: 'Car Rental', industry: 'travel' },
-  { key: 'security-system-dealers', name: 'Security Systems', industry: 'retail' }
+  { key: 'pest-control-services', name: 'Pest Control', industry: 'services' }
 ];
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 async function main() {
-  console.log('=== Starting Broad Page 1 Real B2B Lead Scraper for Local Database ===');
-  const leads = [];
+  console.log('=== Starting Incremental Page 2 Scraper ===');
+  
+  const dbPath = path.join(__dirname, '..', 'data', 'real-leads-database.json');
+  let leads = [];
   const seenPhones = new Set();
   const seenNames = new Set();
-  
-  let totalRequests = 0;
-  const maxLeads = 550; // We need exactly 500 leads, so target 550 for safety margin
 
-  // Fetch only page 1 to guarantee 100% unique, non-duplicated listings
+  if (fs.existsSync(dbPath)) {
+    try {
+      leads = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
+      console.log(`Loaded ${leads.length} existing leads from database.`);
+      leads.forEach(lead => {
+        const phoneKey = lead.phone.replace(/\D/g, '');
+        seenPhones.add(phoneKey);
+        seenNames.add(lead.name.toLowerCase());
+      });
+    } catch (e) {
+      console.error('Error reading existing database:', e.message);
+    }
+  }
+
+  const targetLeads = 515; // Reach at least 515 leads total
+  let newLeadsCount = 0;
+  let totalRequests = 0;
+
   for (const city of cities) {
-    if (leads.length >= maxLeads) break;
+    if (leads.length >= targetLeads) break;
 
     for (const cat of categories) {
-      if (leads.length >= maxLeads) break;
+      if (leads.length >= targetLeads) break;
 
-      const url = `https://www.sulekha.com/${cat.key}/${city}`;
+      // Query page 2 using the correct suffix format
+      const url = `https://www.sulekha.com/${cat.key}/${city}-page-2`;
       totalRequests++;
-      console.log(`[Request #${totalRequests}] Fetching ${cat.name} in ${city} (Page 1)...`);
+      console.log(`[Request #${totalRequests}] Fetching ${cat.name} in ${city} (Page 2)...`);
       
       try {
         const res = await fetch(url, {
@@ -143,8 +155,9 @@ async function main() {
           });
 
           parsedCount++;
+          newLeadsCount++;
 
-          if (leads.length >= maxLeads) break;
+          if (leads.length >= targetLeads) break;
         }
 
         console.log(`      Found: ${parsedCount} leads (Total leads collected: ${leads.length})`);
@@ -157,11 +170,10 @@ async function main() {
     }
   }
 
-  console.log(`\n=== Scraping Completed! Total leads collected: ${leads.length} ===`);
+  console.log(`\n=== Incremental Page 2 Scraping Completed! Added ${newLeadsCount} new leads. Total: ${leads.length} ===`);
 
-  const outputPath = path.join(__dirname, '..', 'data', 'real-leads-database.json');
-  fs.writeFileSync(outputPath, JSON.stringify(leads, null, 2), 'utf8');
-  console.log(`Successfully saved ${leads.length} real leads to: ${outputPath}`);
+  fs.writeFileSync(dbPath, JSON.stringify(leads, null, 2), 'utf8');
+  console.log(`Successfully updated and saved ${leads.length} real leads to: ${dbPath}`);
 }
 
 main().catch(err => {

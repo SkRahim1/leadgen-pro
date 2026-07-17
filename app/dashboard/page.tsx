@@ -124,7 +124,7 @@ export default function DashboardPage() {
               <div className="flex items-center gap-2" style={{ display: "flex", alignItems: "center" }}>
                 <span style={{ fontSize: 18, marginRight: 6 }}>📞</span>
                 <h3 style={{ fontSize: 15, fontWeight: 800, color: "var(--accent-light)", margin: 0 }}>
-                  Telecalling Campaign: Seed 500 Real B2B Leads
+                  Telecalling Campaign: Seed Real B2B Leads
                 </h3>
                 <span className="badge-hot" style={{ fontSize: 9, padding: "2px 6px", marginLeft: 10, display: "inline-block" }}>CAMPAIGN ACTIVE</span>
               </div>
@@ -142,11 +142,17 @@ export default function DashboardPage() {
                   onClick={async () => {
                     setImporting(true)
                     try {
-                      const res = await fetch('/api/import-leads')
+                      const res = await fetch('/api/import-leads', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ existingIds: savedLeads.map(l => l.placeId) })
+                      })
                       const data = await res.json()
                       if (data.leads && data.leads.length > 0) {
                         importWebDevLeads(data.leads)
-                        setImportSuccess(`Successfully imported ${data.leads.length} real B2B leads!`)
+                        setImportSuccess(`Successfully imported ${data.leads.length} fresh real B2B leads!`)
+                        // Clear success message after 5 seconds to allow clicking again
+                        setTimeout(() => setImportSuccess(null), 5000)
                       } else {
                         alert("No leads found or error occurred while importing.")
                       }
@@ -172,11 +178,11 @@ export default function DashboardPage() {
                   {importing ? (
                     <>
                       <Loader2 size={14} className="spin" style={{ animation: "spin 0.8s linear infinite" }} />
-                      Crawling Listings...
+                      Loading Leads...
                     </>
                   ) : (
                     <>
-                      <span>⚡</span> Load 500 Real Leads
+                      <span>⚡</span> Load Fresh B2B Leads
                     </>
                   )}
                 </button>
